@@ -2,36 +2,56 @@ from math import exp, log
 from numpy.random import exponential
 from scipy.stats import poisson
 from numpy import dot
+from decimal import Decimal
 
 def F(x, rho):
-    return 1 - exp(-rho * x)
+    return 1 -  exp(-rho * x)
+
+def get_f(rho):
+    return lambda x: rho * Decimal(-rho * x).exp()
 
 def G(x):
-    return 1 - exp(-x)
+    return 1 - Decimal(-x).exp()
 
-def get_time(rho, n):
+def get_t(rho, n):
     return exponential(rho, n)
 
-def get_probabilities(t, a):
-    return 1 - G(dot(t,a))
+def get_p(t, a, n):
+    return [1 - G(dot(T, A)) for i in xrange(n) for T, A in zip(t[:i], a[:i])]
 
-def s(m, k, p):
-    if m == 0 and k == 0:
-        return 1
-    elif k == 0:
-        return (1 - p[m-1]) * s(m-1, 0)
-    elif m == k:
-        return p[m-1] * s(m-1, k-1)
-    else:
-        return p[m-1] * s(m-1, k-1) + (1 - p[m-1]) * s(m-1, k)
+def get_s(p):
+    cache = {}
+    def s(m, k):
+        result = None
+        if (m, k) in cache:
+            return cache[(m, k)]
+        if k == 0 and m == 0:
+            result = 1
+        elif k == 0:
+            result = (1 - p[m-1]) * s(m-1, 0)
+        elif m == k:
+            result = p[m-1] * s(m-1, k-1)
+        else:
+            result = p[m-1] * s(m-1, k-1) + (1 - p[m-1]) * s(m-1, k)
+        cache[(m, k)] = Decimal(result)
+        return result
+    return s
 
-def get_R(n, k, p, r):
-    return sum(s(m, k, p) for m in xrange(r, n+1))
+def get_R(n, p, r):
+    result = 0
+    s = get_s(p)
+    for k in xrange(r, n+1):
+        r = s(n, k)
+        result += s(n, k)
+    return result
 
 def get_Q(R, f, a, t):
-    dividends = [A * f(A*T) for A, T in zip(a,t)]
+    dividends = [Decimal(A) * f(A*T) for A, T in zip(a,t)]
     divisors = [f(T) for T in t]
-    return R * reduce(lambda x, y: x*y, dividends, 1) / reduce(lambda x, y: x*y, divisors, 1)
+    mul = lambda x, y: x*y
+    di = reduce(mul, dividends, 1)
+    d = reduce(mul, divisors, 1)
+    return Decimal(R) * di / d
 
 def get_n(epsilon, rho, a, t):
     w = poisson.isf(epsilon, 1.0/rho)
@@ -42,17 +62,35 @@ def get_n(epsilon, rho, a, t):
         n += 1
     return n
 
-def get_a(phi, a, b, n):
+def get_a(phi, n):
     return [phi(i) for i in xrange(1, n+1)]
 
-def phi(x, m, A):
-    a = exp(A) - b
+def get_phi(m, A):
     b = (exp(1) - exp(A)) / (m - 1)
-    return log(a + b * x)
+    a = exp(A) - b
+    return (lambda x: log(a + b * x))
 
 if __name__ == '__main__':
     r = 100
-    rho = 100
-    n = 10
+    rho = 150
+    n = 400
+    m = 300
     epsilon = 1E-4
+    A = 0.9
+
+    phi = get_phi(m, A)
+    print 'Init a'
+    a = get_a(phi, n)
+    print 'Init t'
+    t = get_t(rho, n)
+    print 'Init p'
+    p = get_p(t, a, n)
+    print 'Init f'
+    f = get_f(rho)
+
+    print 'Init R'
+    R = get_R(n, p, r)
+    print 'Init Q'
+    Q = get_Q(R, f, a, t)
+    print 'Result is', Q
 
