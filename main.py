@@ -2,7 +2,9 @@ from math import exp, log
 from numpy.random import exponential
 from scipy.stats import poisson
 from numpy import dot
-from decimal import Decimal
+from decimal import Decimal, getcontext
+
+#getcontext().prec = 100
 
 def F(x, rho):
     return 1 -  exp(-rho * x)
@@ -14,10 +16,15 @@ def G(x):
     return 1 - Decimal(-x).exp()
 
 def get_t(rho, n):
-    return exponential(rho, n)
+    return map(Decimal, exponential(1/rho, n))
 
 def get_p(t, a, n):
-    return [1 - G(dot(T, A)) for i in xrange(n) for T, A in zip(t[:i], a[:i])]
+    accumulator = Decimal(0)
+    result = []
+    for i in xrange(n):
+        accumulator += t[i] * a[i]
+        result.append(1 - G(accumulator))
+    return result
 
 def get_s(p):
     cache = {}
@@ -33,7 +40,7 @@ def get_s(p):
             result = p[m-1] * s(m-1, k-1)
         else:
             result = p[m-1] * s(m-1, k-1) + (1 - p[m-1]) * s(m-1, k)
-        cache[(m, k)] = Decimal(result)
+        cache[(m, k)] = result
         return result
     return s
 
@@ -46,7 +53,7 @@ def get_R(n, p, r):
     return result
 
 def get_Q(R, f, a, t):
-    dividends = [Decimal(A) * f(A*T) for A, T in zip(a,t)]
+    dividends = [A * f(A*T) for A, T in zip(a,t)]
     divisors = [f(T) for T in t]
     mul = lambda x, y: x*y
     di = reduce(mul, dividends, 1)
@@ -63,7 +70,7 @@ def get_n(epsilon, rho, a, t):
     return n
 
 def get_a(phi, n):
-    return [phi(i) for i in xrange(1, n+1)]
+    return [Decimal(phi(i)) for i in xrange(1, n+1)]
 
 def get_phi(m, A):
     b = (exp(1) - exp(A)) / (m - 1)
@@ -72,7 +79,7 @@ def get_phi(m, A):
 
 if __name__ == '__main__':
     r = 100
-    rho = 150
+    rho = Decimal(150)
     n = 400
     m = 300
     epsilon = 1E-4
@@ -81,10 +88,13 @@ if __name__ == '__main__':
     phi = get_phi(m, A)
     print 'Init a'
     a = get_a(phi, n)
+    #print a
     print 'Init t'
     t = get_t(rho, n)
+    #print t
     print 'Init p'
     p = get_p(t, a, n)
+    #print p
     print 'Init f'
     f = get_f(rho)
 
