@@ -154,9 +154,9 @@ if __name__ == '__main__':
         return Q
 
     results = []
-    for i in xrange(5):
-        results.append(run_tasks(rho, r, .52+.02*i, m, iterations, True, get_task=get_task))
-    Qs = results[0][5]
+    #for i in xrange(5):
+    #    results.append(run_tasks(rho, r, .52+.02*i, m, iterations, True, get_task=get_task))
+    results.append(run_tasks(rho, r, .93, m, iterations, True, get_task=get_task))
     realQ = float(calculate_Q(r, rho))
     #devs = [stdev(realQ, Qs[:i]) for i in xrange(1,len(Qs)+1)]
     #print devs
