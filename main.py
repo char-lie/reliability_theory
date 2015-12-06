@@ -123,12 +123,12 @@ def run_tasks(rho, r, A, m, iterations=1, parallel=False, D=float, get_task=None
 
 
 if __name__ == '__main__':
-    iterations = 128
-    r = 180
+    iterations = 1
+    r = 140
     rho = 100
     m = 2*r
     #epsilon = 1E-5
-    epsilon = 1E-4
+    epsilon = 1E-5
     #A = 0.9
     # r = 120, A = .93, m = 200
     # r = 140
@@ -154,8 +154,8 @@ if __name__ == '__main__':
         return Q
 
     results = []
-    for i in xrange(3):
-        results.append(run_tasks(rho, r, .5+.05*i, m, iterations, True, get_task=get_task))
+    for i in xrange(5):
+        results.append(run_tasks(rho, r, .52+.02*i, m, iterations, True, get_task=get_task))
     Qs = results[0][5]
     realQ = float(calculate_Q(r, rho))
     #devs = [stdev(realQ, Qs[:i]) for i in xrange(1,len(Qs)+1)]
