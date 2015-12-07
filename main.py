@@ -121,15 +121,21 @@ def run_tasks(rho, r, A, m, iterations=1, parallel=False, D=float, get_task=None
            100.0*abs(float((realQ-experimentalQ)/realQ)), float(stdev(realQ, Qs)))
     return experimentalQ, stdev(realQ, Qs), A, m, r, Qs
 
+def display_result(experimentalQ, stdevi, A, m, r, Qs):
+    realQ = float(calculate_Q(r, rho))
+    print 'Difference is', 100*abs(realQ-experimentalQ)/realQ, '% result is', experimentalQ, '(',realQ ,'), deviation is', stdevi, '(a*=%f, m=%d, r=%d)'%(a, m, r)
 
 if __name__ == '__main__':
-    iterations = 512
+    iterations = 1024
     r = 160
     rho = 100
     m = 2*r
     #epsilon = 1E-5
-    epsilon = 1E-4
-    RMA = [(140,280,.73),(160,320,.635),(180,360,.55)]
+    epsilon = 1E-5
+    # RMA custom
+    # RMA = [(140,280,.73),(160,320,.635),(180,360,.55)]
+    RMA = []
+    RMA.extend([(140, 280, .65+.01*i) for i in xrange(10)])
     #A = 0.9
     # r = 120, A = .93, m = 200
     # r = 140
@@ -170,14 +176,15 @@ if __name__ == '__main__':
     #Qs = results[0][5]
     for r, m, a in RMA:
         results.append(run_tasks(rho, r, a, m, iterations, True, get_task=get_task))
+        result = results[-1]
+        display_result(result[0], result[1], result[2], result[3], result[4], result[5])
     #realQ = float(calculate_Q(r, rho))
     #devs = [stdev(realQ, Qs[:i]) for i in xrange(1,len(Qs)+1)]
     #print devs
     for experimentalQ, stdevi, A, m, r, Qs in results:
-        realQ = float(calculate_Q(r, rho))
-        print 'Difference is %.15f%%, result is %.15f (%.15f), deviation is %.15f (a*=%f, m=%d, r=%d)'%(100*abs(realQ-experimentalQ)/realQ, experimentalQ, realQ, stdevi, a, m, r)
+        display_result(experimentalQ, stdevi, A, m, r, Qs)
     #Stats(profile).sort_stats('tottime').print_stats()
     for experimentalQ, stdevi, A, m, r, Qs in results:
         print 'r =', r
-        print Qs
+        print 'Qs =', Qs
 
