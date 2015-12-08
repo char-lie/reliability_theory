@@ -30,12 +30,11 @@ def get_s(p):
     matrix = [[1]]
     n = len(p)
     for m in xrange(n):
-        matrix.append([matrix[m][0] * p[m]] + [0] * (m+1))
-        matrix[m+1][m+1] = matrix[m][m] * (1-p[m])
+        matrix.append([matrix[m][0] * (1-p[m])] + [0] * (m+1))
+        matrix[m+1][m+1] = matrix[m][m] * p[m]
         for k in xrange(m):
-            matrix[m+1][m+1] = matrix[m][m] * (1-p[m])
             matrix[m+1][k+1] = matrix[m][k] * p[m] + (1 - p[m]) * matrix[m][k+1]
-    return matrix[-1]
+    return matrix[n]
 
 def get_R(n, p, r):
     return sum(get_s(p)[r:n+1])
@@ -105,7 +104,7 @@ def display_result(experimentalQ, stdevi, A, m, r, Qs):
 if __name__ == '__main__':
     #profile = Profile()
     #profile.enable()
-    iterations = 2048
+    iterations = 256
     #r = 160
     #m = 2*r
     rho = 100
