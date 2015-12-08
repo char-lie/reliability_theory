@@ -27,41 +27,18 @@ def get_f(rho):
     return lambda x: rho * exp(-rho * x)
 
 def get_s(p):
-    cache = {}
-    inv_p = [1-probability for probability in p]
-    p_muls = []
-    inv_p_muls = []
-    p_muls = [reduce(mul, p[:i+1], 1) for i in range(len(p))]
-    inv_p_muls = [reduce(mul, inv_p[:i+1], 1) for i in range(len(inv_p))]
-    def s(m, k):
-        result = None
-        if (m, k) in cache:
-            return cache[(m, k)]
-        if k == 0 and m == 0:
-            result = 1
-        elif k == 0:
-            result = inv_p_muls[m-1]
-        elif m == k:
-            result = p_muls[m-1]
-        else:
-            result = s(m-1, k-1) * p[m-1] + (1 - p[m-1]) * s(m-1, k)
-            cache[(m, k)] = result
-        return result
-    return s
-
-def get_R_Decimal(n, p, r):
-    result = Decimal(0)
-    s = get_s(p)
-    for k in xrange(r, n+1):
-        result += s(n, k)
-    return result
+    matrix = [[1]]
+    n = len(p)
+    for m in xrange(n):
+        matrix.append([matrix[m][0] * p[m]] + [0] * (m+1))
+        matrix[m+1][m+1] = matrix[m][m] * (1-p[m])
+        for k in xrange(m):
+            matrix[m+1][m+1] = matrix[m][m] * (1-p[m])
+            matrix[m+1][k+1] = matrix[m][k] * p[m] + (1 - p[m]) * matrix[m][k+1]
+    return matrix[-1]
 
 def get_R(n, p, r):
-    result = 0
-    s = get_s(p)
-    for k in xrange(r, n+1):
-        result += s(n, k)
-    return result
+    return sum(get_s(p)[r:n+1])
 
 def get_Q_Decimal(R, f, a, t):
     divisor = reduce(mul, [f(T) for A, T in zip(a,t)], Decimal(1))
@@ -83,12 +60,11 @@ def calculate_Q(r, rho):
 def run_task_Decimal(rho, r, n, a, f, t):
     p = get_p_Decimal(t, a, n)
 
-    R = get_R_Decimal(n, p, r)
+    R = get_R(n, p, r)
     print 'R', R
     Q = get_Q_Decimal(R, f, a, t)
     return Q
 
-#profile = Profile()
 def run_task(rho, r, n, a, f, t):
     p = get_p(t, a, n)
 
@@ -106,13 +82,14 @@ def run_tasks(rho, r, A, m, iterations=1, parallel=False, D=float, get_task=None
     Qs = []
     f = get_f(rho)
     if parallel:
-        Qs = Parallel(n_jobs=3)(delayed(get_task)(A, m, r, i) for i in range(iterations))
+        Qs = Parallel(n_jobs=4)(delayed(get_task)(A, m, r, i) for i in range(iterations))
     else:
         for i in range(iterations):
             #profile.enable()
-            n, a, t = generate_n(epsilon, rho, m, A, True)
-            print 'Running task', i
-            Qs.append(run_task(rho, r, n, a, f, t))
+            #n, a, t = generate_n(epsilon, rho, m, A, True)
+            #print 'Running task', i
+            #Qs.append(run_task(rho, r, n, a, f, t))
+            Qs.append(get_task(A, m, r, i))
             #profile.disable()
     experimentalQ = sum(Qs)/len(Qs)
     print 'Q', experimentalQ
@@ -126,14 +103,17 @@ def display_result(experimentalQ, stdevi, A, m, r, Qs):
     print 'Difference is', 100*abs(float((realQ-experimentalQ)/realQ)), '% result is', experimentalQ, '(',realQ ,'), deviation is', stdevi, '(a*=%f, m=%d, r=%d)'%(a, m, r)
 
 if __name__ == '__main__':
-    iterations = 10000
-    r = 160
+    #profile = Profile()
+    #profile.enable()
+    iterations = 2048
+    #r = 160
+    #m = 2*r
     rho = 100
-    m = 2*r
     #epsilon = 1E-5
     epsilon = 1E-4
     # RMA custom
-    RMA = [(140,280,.716),(160,320,.633),(180,360,.545)]
+    #RMA = [(140,280,.716),(160,320,.633),(180,360,.545)]
+    RMA = [(160,320,.633)]
     #A = 0.9
     # r = 120, A = .93, m = 200
     # r = 140
@@ -190,8 +170,10 @@ if __name__ == '__main__':
     #print devs
     for experimentalQ, stdevi, a, m, r, Qs in results:
         display_result(experimentalQ, stdevi, a, m, r, Qs)
+    #for experimentalQ, stdevi, A, m, r, Qs in results:
+    #    print 'r =', r
+    #    print 'Qs =', Qs
+    #profile.disable()
+    #Stats(profile).sort_stats('cumulative').print_stats()
     #Stats(profile).sort_stats('tottime').print_stats()
-    for experimentalQ, stdevi, A, m, r, Qs in results:
-        print 'r =', r
-        print 'Qs =', Qs
 
