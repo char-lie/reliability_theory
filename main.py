@@ -134,7 +134,6 @@ if __name__ == '__main__':
     epsilon = 1E-4
     # RMA custom
     RMA = [(140,280,.716),(160,320,.633),(180,360,.545)]
-    RMA = []
     #RMA.extend([(140, 280, .65+.01*i) for i in xrange(10)])
     #A = 0.9
     # r = 120, A = .93, m = 200
