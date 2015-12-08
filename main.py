@@ -126,7 +126,7 @@ def display_result(experimentalQ, stdevi, A, m, r, Qs):
     print 'Difference is', 100*abs(float((realQ-experimentalQ)/realQ)), '% result is', experimentalQ, '(',realQ ,'), deviation is', stdevi, '(a*=%f, m=%d, r=%d)'%(a, m, r)
 
 if __name__ == '__main__':
-    iterations = 3000
+    iterations = 10000
     r = 160
     rho = 100
     m = 2*r
@@ -134,8 +134,8 @@ if __name__ == '__main__':
     epsilon = 1E-4
     RMA = []
     # RMA custom
-    RMA = [(140,280,.716),(160,320,.635),(180,360,.551)]
-    #RMA.extend([(140, 280, .716)])
+    RMA = [(140,280,.716),(160,320,.633),(180,360,.545)]
+    RMA.extend([(140, 280, .716)])
     #A = 0.9
     # r = 120, A = .93, m = 200
     # r = 140
