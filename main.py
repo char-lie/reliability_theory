@@ -126,16 +126,16 @@ def display_result(experimentalQ, stdevi, A, m, r, Qs):
     print 'Difference is', 100*abs(realQ-experimentalQ)/realQ, '% result is', experimentalQ, '(',realQ ,'), deviation is', stdevi, '(a*=%f, m=%d, r=%d)'%(a, m, r)
 
 if __name__ == '__main__':
-    iterations = 1024
+    iterations = 10000
     r = 160
     rho = 100
     m = 2*r
     #epsilon = 1E-5
-    epsilon = 1E-5
+    epsilon = 1E-4
     # RMA custom
-    # RMA = [(140,280,.73),(160,320,.635),(180,360,.55)]
+    RMA = [(140,280,.716),(160,320,.633),(180,360,.545)]
     RMA = []
-    RMA.extend([(140, 280, .65+.01*i) for i in xrange(10)])
+    #RMA.extend([(140, 280, .65+.01*i) for i in xrange(10)])
     #A = 0.9
     # r = 120, A = .93, m = 200
     # r = 140
