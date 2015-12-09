@@ -24,3 +24,16 @@ double R(size_t n, size_t r, double* p) {
     return result;
 }
 
+double Q(size_t n, int rho, double R, double* a, double* t) {
+    double exponent = 0;
+    size_t i = 0;
+    do {
+        exponent += (1 - a[n]) * t[n];
+    } while (++i < n);
+    double result = R * exp(rho * exponent);
+    while (n-- > 0) {
+        result *= a[n];
+    }
+    return result;
+}
+
