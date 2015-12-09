@@ -18,7 +18,7 @@ int main() {
     double* p = get_p(n, a, t);
 
     double R_estimate = R(n, r, p);
-    double Q_estimate = Q(n, rho, R, a, t);
+    double Q_estimate = Q(R_estimate, rho, n, a, t);
 
     printf("Q estimate is %f, real value is %f\n", Q_estimate, get_Q(r, rho));
 
