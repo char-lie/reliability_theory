@@ -7,7 +7,7 @@ double random_double() {
 }
 
 double random_exponential(double rho) {
-    return -log(random_double) / rho;
+    return -log(random_double()) / rho;
 }
 
 double poisson_quantile(double epsilon) {
