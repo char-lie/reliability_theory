@@ -12,7 +12,7 @@ double* get_a(size_t n, size_t m, double alpha, ) {
     double a = (m * exp(A) - exp(1)) / (m - 1);
     double b = (exp(1) - exp(alpha)) / (m - 1);
     double* result = (double*)malloc(n * sizeof(double));
-    size_t i=0;
+    size_t i = 0;
     do {
         result[i] = log(a + b * i);
     } while (i++ < m);
@@ -29,7 +29,7 @@ size_t estimate_n(size_t m, int rho, double epsilon, double alpha) {
 double* get_p(size_t n, double* a, double* t) {
     double* result = (double*)malloc(n * sizeof(double));
     double accumulator = 0;
-    size_t i=0;
+    size_t i = 0;
     do {
         accumulator -= t[i] * a[i];
         result[i] = exp(accumulator);
