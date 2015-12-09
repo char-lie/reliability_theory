@@ -9,3 +9,8 @@ double random_double() {
 double random_exponential(int rho) {
     return -log(random_double)/rho;
 }
+
+double poisson_quantile(double epsilon) {
+    return -log(epsilon);
+}
+
