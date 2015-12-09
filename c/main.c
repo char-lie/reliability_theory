@@ -4,6 +4,8 @@
 #include "estimates.h"
 
 int main() {
+    srand(time(NULL));
+
     double rho = 100.0;
     double epsilon = 1E-4;
 
