@@ -15,9 +15,9 @@ int main() {
     double epsilon = 1E-4;
 
     size_t r = 180;
-
     size_t m = r * 2;
 
+    /*
     double* alphas;
     double* relative_deviations;
     size_t deepness = 6;
@@ -29,6 +29,35 @@ int main() {
     }
     free(alphas);
     free(relative_deviations);
+    */
+    double realQ;
+    double alpha;
+    double* values;
+
+    alpha = 0.725; // 2.86%
+    r = 140;
+    m = r*2;
+    realQ = get_Q(r, rho);
+    values = get_estimates(iterations, rho, epsilon, r, m, alpha);
+    printf("Difference is %f%%\n", 100*fabs((sum(values, iterations)/iterations-realQ)/realQ));
+    free(values);
+
+    alpha = 0.625; // 0.04%
+    r = 160;
+    m = r*2;
+    realQ = get_Q(r, rho);
+    values = get_estimates(iterations, rho, epsilon, r, m, alpha);
+    printf("Difference is %f%%\n", 100*fabs((sum(values, iterations)/iterations-realQ)/realQ));
+    free(values);
+
+    alpha = 0.553125; // 14.86%
+    r = 180;
+    m = r*2;
+    realQ = get_Q(r, rho);
+    values = get_estimates(iterations, rho, epsilon, r, m, alpha);
+    printf("Difference is %f%%\n", 100*fabs((sum(values, iterations)/iterations-realQ)/realQ));
+    free(values);
+
     return 0;
 }
 
