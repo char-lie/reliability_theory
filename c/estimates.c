@@ -27,7 +27,7 @@ double R(size_t n, size_t r, double* p) {
     return result;
 }
 
-double Q(size_t n, int rho, double R, double* a, double* t) {
+double Q(size_t n, double rho, double R, double* a, double* t) {
     double exponent = 0;
     size_t i = 0;
     do {
