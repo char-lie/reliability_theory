@@ -15,7 +15,7 @@ double* get_a(size_t n, size_t m, double alpha, ) {
     size_t i = 0;
     do {
         result[i] = log(a + b * i);
-    } while (i++ < m);
+    } while (++i < m);
     do {
         result[i] = 1.0;
     } while (++i < n);
