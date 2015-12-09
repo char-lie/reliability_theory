@@ -1,6 +1,6 @@
 from cProfile import Profile
 from pstats import Stats
-from math import exp, log
+from math import exp, log, sqrt
 from numpy.random import exponential, seed
 from scipy.stats import poisson
 from numpy import dot
@@ -10,12 +10,12 @@ from operator import mul
 
 from generate_n import generate_n
 from generate_a import init_a
-from generate_randoms import get_t, get_p
+from generate_randoms import get_t, get_p, get_p_Decimal
 
 from sys import setrecursionlimit, stdout
 
 setrecursionlimit(5000)
-getcontext().prec = 400
+getcontext().prec = 100
 
 def F(x, rho):
     return 1 -  exp(-rho * x)
@@ -27,46 +27,22 @@ def get_f(rho):
     return lambda x: rho * exp(-rho * x)
 
 def get_s(p):
-    cache = {}
-    inv_p = [1-probability for probability in p]
-    p_muls = []
-    inv_p_muls = []
-    p_muls = [reduce(mul, p[:i+1], 1) for i in range(len(p))]
-    inv_p_muls = [reduce(mul, inv_p[:i+1], 1) for i in range(len(inv_p))]
-    def s(m, k):
-        result = None
-        if (m, k) in cache:
-            return cache[(m, k)]
-        if k == 0 and m == 0:
-            result = 1
-        elif k == 0:
-            result = inv_p_muls[m-1]
-        elif m == k:
-            result = p_muls[m-1]
-        else:
-            result = s(m-1, k-1) * p[m-1] + (1 - p[m-1]) * s(m-1, k)
-            cache[(m, k)] = result
-        return result
-    return s
-
-def get_R_Decimal(n, p, r):
-    result = Decimal(0)
-    s = get_s(p)
-    for k in xrange(r, n+1):
-        result += s(n, k)
-    return result
+    matrix = [[1]]
+    n = len(p)
+    for m in xrange(n):
+        matrix.append([matrix[m][0] * (1-p[m])] + [0] * (m+1))
+        matrix[m+1][m+1] = matrix[m][m] * p[m]
+        for k in xrange(m):
+            matrix[m+1][k+1] = matrix[m][k] * p[m] + (1 - p[m]) * matrix[m][k+1]
+    return matrix[n]
 
 def get_R(n, p, r):
-    result = 0
-    s = get_s(p)
-    for k in xrange(r, n+1):
-        result += s(n, k)
-    return result
+    return sum(get_s(p)[r:n+1])
 
-def get_Q_Decimal(R, f, a, t, D=float):
+def get_Q_Decimal(R, f, a, t):
     divisor = reduce(mul, [f(T) for A, T in zip(a,t)], Decimal(1))
     divident = reduce(mul, [A * f(A*T) for A, T in zip(a,t)], Decimal(1))
-    return (D(R) * divident) / divisor
+    return (Decimal(R) * divident) / divisor
 
 def get_Q(R, f, a, t):
     return reduce(mul, [A * f(A*T) / f(T) for A, T in zip(a,t)], R)
@@ -80,16 +56,14 @@ def calculate_Q(r, rho):
         result += (rho**i)/k
     return 1 - c * (1 + result)
 
-def run_task_Decimal(rho, r, n, a, f):
-    t = get_t_Decimal(rho, n)
-    p = get_p(t, a, n)
+def run_task_Decimal(rho, r, n, a, f, t):
+    p = get_p_Decimal(t, a, n)
 
-    R = get_R_Decimal(n, p, r)
+    R = get_R(n, p, r)
     print 'R', R
     Q = get_Q_Decimal(R, f, a, t)
     return Q
 
-#profile = Profile()
 def run_task(rho, r, n, a, f, t):
     p = get_p(t, a, n)
 
@@ -99,7 +73,7 @@ def run_task(rho, r, n, a, f, t):
 
 def stdev(real, experimental):
     avg = sum(experimental)/len(experimental)
-    return float(sum(Decimal(e - avg)**2 for e in experimental)/(Decimal(sum(experimental))))
+    return (len(experimental)*sum(Decimal(e - avg)**2 for e in experimental)).sqrt()/(Decimal(sum(experimental)))
 
 def run_tasks(rho, r, A, m, iterations=1, parallel=False, D=float, get_task=None):
     realQ = D(calculate_Q(r, rho))
@@ -111,9 +85,10 @@ def run_tasks(rho, r, A, m, iterations=1, parallel=False, D=float, get_task=None
     else:
         for i in range(iterations):
             #profile.enable()
-            n, a, t = generate_n(epsilon, rho, m, A)
-            print 'Running task', i
-            Qs.append(run_task(rho, r, n, a, f, t))
+            #n, a, t = generate_n(epsilon, rho, m, A, True)
+            #print 'Running task', i
+            #Qs.append(run_task(rho, r, n, a, f, t))
+            Qs.append(get_task(A, m, r, i))
             #profile.disable()
     experimentalQ = sum(Qs)/len(Qs)
     print 'Q', experimentalQ
@@ -122,19 +97,22 @@ def run_tasks(rho, r, A, m, iterations=1, parallel=False, D=float, get_task=None
     return experimentalQ, stdev(realQ, Qs), A, m, r, Qs
 
 def display_result(experimentalQ, stdevi, A, m, r, Qs):
-    realQ = float(calculate_Q(r, rho))
-    print 'Difference is', 100*abs(realQ-experimentalQ)/realQ, '% result is', experimentalQ, '(',realQ ,'), deviation is', stdevi, '(a*=%f, m=%d, r=%d)'%(a, m, r)
+    realQ = calculate_Q(r, rho)
+    experimentalQ = Decimal(experimentalQ)
+    print 'Difference is', 100*abs(float((realQ-experimentalQ)/realQ)), '% result is', experimentalQ, '(',realQ ,'), deviation is', stdevi, '(a*=%f, m=%d, r=%d)'%(a, m, r)
 
 if __name__ == '__main__':
-    iterations = 10000
-    r = 160
+    #profile = Profile()
+    #profile.enable()
+    iterations = 256
+    #r = 160
+    #m = 2*r
     rho = 100
-    m = 2*r
     #epsilon = 1E-5
     epsilon = 1E-4
     # RMA custom
-    RMA = [(140,280,.716),(160,320,.633),(180,360,.545)]
-    #RMA.extend([(140, 280, .65+.01*i) for i in xrange(10)])
+    #RMA = [(140,280,.716),(160,320,.633),(180,360,.545)]
+    RMA = [(160,320,.633)]
     #A = 0.9
     # r = 120, A = .93, m = 200
     # r = 140
@@ -159,13 +137,22 @@ if __name__ == '__main__':
     # Difference is 15.120959474991036%, result is 0.000000000000348, deviation is 0.000000000000274 (a*=0.600000, m=360, r=180)
 
     #realQ = float(calculate_Q(r, rho))
-    f = get_f(rho)
+    highPrecision = False
+    if highPrecision:
+        f = get_f_Decimal(rho)
+    else:
+        f = get_f(rho)
     def get_task(A, m, r, i):
         seed()
-        n, a, t = generate_n(epsilon, rho, m, A)
-        Q = run_task(rho, r, n, a, f, t)
-        realQ = float(calculate_Q(r, rho))
-        print 'Compeleted task %04d for a*=%f, m=%d with n=%04d: %.15f (%.15f, %f%%)'%(i, A, m, n, Q, realQ, 100*abs(realQ-Q)/realQ)
+        n, a, t = generate_n(epsilon, rho, m, A, highPrecision)
+        if highPrecision:
+            Q = run_task_Decimal(rho, r, n, a, f, t)
+        else:
+            Q = run_task(rho, r, n, a, f, t)
+        realQ = calculate_Q(r, rho)
+        if not highPrecision:
+            realQ = float(realQ)
+        print 'Compeleted task %04d for a*=%f, m=%d with n=%04d: %.15f (%.15f, %f%%)'%(i, A, m, n, Q, float(realQ), 100*abs(float((realQ-Q)/realQ)))
         stdout.flush()
         return Q
 
@@ -174,16 +161,18 @@ if __name__ == '__main__':
     #    results.append(run_tasks(rho, r, .64+.005*i, m, iterations, True, get_task=get_task))
     #Qs = results[0][5]
     for r, m, a in RMA:
-        results.append(run_tasks(rho, r, a, m, iterations, True, get_task=get_task))
+        results.append(run_tasks(rho, r, a, m, iterations, True, Decimal if highPrecision else float, get_task=get_task))
         result = results[-1]
         display_result(result[0], result[1], result[2], result[3], result[4], result[5])
     #realQ = float(calculate_Q(r, rho))
     #devs = [stdev(realQ, Qs[:i]) for i in xrange(1,len(Qs)+1)]
     #print devs
-    for experimentalQ, stdevi, A, m, r, Qs in results:
-        display_result(experimentalQ, stdevi, A, m, r, Qs)
+    for experimentalQ, stdevi, a, m, r, Qs in results:
+        display_result(experimentalQ, stdevi, a, m, r, Qs)
+    #for experimentalQ, stdevi, A, m, r, Qs in results:
+    #    print 'r =', r
+    #    print 'Qs =', Qs
+    #profile.disable()
+    #Stats(profile).sort_stats('cumulative').print_stats()
     #Stats(profile).sort_stats('tottime').print_stats()
-    for experimentalQ, stdevi, A, m, r, Qs in results:
-        print 'r =', r
-        print 'Qs =', Qs
 
