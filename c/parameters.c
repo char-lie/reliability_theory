@@ -11,7 +11,7 @@ double* get_t(size_t n, double rho) {
 double* get_a(size_t n, size_t m, double alpha, ) {
     double a = (m * exp(A) - exp(1)) / (m - 1);
     double b = (exp(1) - exp(alpha)) / (m - 1);
-    double* result = (double*)malloc(n * sizeof(double))
+    double* result = (double*)malloc(n * sizeof(double));
     size_t i=0;
     do {
         result[i] = log(a + b * i);
