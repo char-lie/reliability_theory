@@ -1,5 +1,13 @@
 #include "randoms.h"
 
+double* get_t(size_t n, double rho) {
+    double* result = (double*)malloc(n * sizeof(double));
+    while (--n > 0) {
+        result[n] = random_exponential(rho);
+    }
+    return result;
+}
+
 double* get_a(size_t m, double alpha, size_t n) {
     double a = (m * exp(A) - exp(1)) / (m - 1);
     double b = (exp(1) - exp(alpha)) / (m - 1);
