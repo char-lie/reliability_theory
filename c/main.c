@@ -1,7 +1,10 @@
+#include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include "parameters.h"
 #include "estimates.h"
+#include "experiment.h"
 
 int main() {
     srand(time(NULL));
@@ -15,25 +18,18 @@ int main() {
 
     size_t m = r * 2;
     double alpha = 71.6E-2;
-    long double avgQ = 0.0;
 
-    size_t i=iterations;
-    while (--i > 0) {
-        size_t n = estimate_n(m, rho, epsilon, alpha);
-        double* a = get_a(n, m, alpha);
-        double* t = get_t(n, rho);
-        double* p = get_p(n, a, t);
+    double* values = get_estimates(iterations, rho, epsilon, r, m, alpha);
+    long double sumQ = sum(values, iterations);
+    long double avgQ = sumQ / iterations;
+    long double dev = deviation(avgQ, values, iterations);
 
-        double R_estimate = R(n, r, p);
-        double Q_estimate = Q(R_estimate, rho, n, a, t);
+    printf("Avg=%.015Lf, dev=%.015f, reldev=%02.03Lf%% real is %.015f\n",
+            avgQ, sqrt(dev/iterations), 100*sqrt(iterations*dev)/sumQ,
+            get_Q(r, rho));
 
-        avgQ += Q_estimate;
+    free(values);
 
-        free(a);
-        free(t);
-        free(p);
-    }
-    printf("Avg=%.015Lf, real is %.015f\n", avgQ/iterations, get_Q(r, rho));
     return 0;
 }
 
