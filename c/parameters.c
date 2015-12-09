@@ -10,7 +10,7 @@ double* get_t(size_t n, double rho) {
     return result;
 }
 
-double* get_a(size_t n, size_t m, double alpha, ) {
+double* get_a(size_t n, size_t m, double alpha) {
     double a = (m * exp(A) - exp(1)) / (m - 1);
     double b = (exp(1) - exp(alpha)) / (m - 1);
     double* result = (double*)malloc(n * sizeof(double));
