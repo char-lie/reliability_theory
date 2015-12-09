@@ -2,7 +2,7 @@
 #include "estimates.h"
 
 int main() {
-    int rho = 100;
+    double rho = 100.0;
     double epsilon = 1E-4;
 
     size_t r = 140;
@@ -18,7 +18,7 @@ int main() {
     double R_estimate = R(n, r, p);
     double Q_estimate = Q(n, rho, R, a, t);
 
-    printf("Q estimate is %f\n", Q_estimate);
+    printf("Q estimate is %f, real value is %f\n", Q_estimate, get_Q(r, rho));
 
     free(a);
     free(t);
