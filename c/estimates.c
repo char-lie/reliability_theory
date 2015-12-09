@@ -14,3 +14,13 @@ double* s(size_t n, double* p) {
     } while (m++ < n);
 }
 
+double R(size_t n, size_t r, double* p) {
+    double* s_matrix = s(n, p);
+    double result = 0;
+    do {
+        result += s_matrix[n][r];
+    } while(++r < n);
+    free(s_matrix);
+    return result;
+}
+
