@@ -38,3 +38,15 @@ double* get_p(size_t n, double* a, double* t) {
     return result;
 }
 
+double get_Q(size_t r, double rho) {
+    double c = exp(-rho);
+    double result = 0.0;
+    double accumulator = 0.0;
+    size_t i = 1;
+    do {
+        accumulator *= rho/i;
+        result += accumulator;
+    } while (++i < r);
+    return result;
+}
+
