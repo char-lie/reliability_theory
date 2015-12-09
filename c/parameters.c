@@ -4,7 +4,7 @@
 
 double* get_t(size_t n, double rho) {
     double* result = (double*)malloc(n * sizeof(double));
-    while (--n > 0) {
+    while (n-- > 0) {
         result[n] = random_exponential(rho);
     }
     return result;
@@ -40,14 +40,13 @@ double* get_p(size_t n, double* a, double* t) {
 }
 
 double get_Q(size_t r, double rho) {
-    double c = exp(-rho);
     double result = 0.0;
-    double accumulator = 0.0;
+    double accumulator = 1.0;
     size_t i = 1;
     do {
         accumulator *= rho/i;
         result += accumulator;
     } while (++i < r);
-    return result;
+    return 1 - exp(-rho) * (1 + result);
 }
 
