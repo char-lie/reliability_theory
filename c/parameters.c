@@ -1,3 +1,4 @@
+#include <math.h>
 #include "randoms.h"
 
 double* get_t(size_t n, double rho) {

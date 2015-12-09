@@ -1,3 +1,6 @@
+#include <math.h>
+#include "parameters.h"
+
 double* s(size_t n, double* p) {
     double** matrix = (double**)malloc(n * sizeof(double*));
     matrix[0] = (double*)malloc(sizeof(double));
