@@ -24,7 +24,7 @@ double* get_a(size_t n, size_t m, double alpha) {
     return result;
 }
 
-size_t estimate_n(size_t m, int rho, double epsilon, double alpha) {
+size_t estimate_n(size_t m, double rho, double epsilon, double alpha) {
     return m + poisson_quantile(epsilon) * rho - (1 + alpha) * m / 2;
 }
 
