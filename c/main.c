@@ -14,8 +14,8 @@ int main() {
 
     size_t n = estimate_n(m, rho, epsilon, alpha);
     double* a = get_a(n, m, alpha);
-    double* t = get_t(size_t n, double rho);
-    double* p = get_p(size_t n, double* a, double* t);
+    double* t = get_t(n, rho);
+    double* p = get_p(n, a, t);
 
     double R_estimate = R(n, r, p);
     double Q_estimate = Q(n, rho, R, a, t);
