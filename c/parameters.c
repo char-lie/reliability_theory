@@ -18,7 +18,7 @@ double* get_a(size_t n, size_t m, double alpha, ) {
     } while (i++ < m);
     do {
         result[i] = 1.0;
-    } while (i++ < n);
+    } while (++i < n);
     return result;
 }
 
