@@ -11,9 +11,10 @@ double** s(size_t n, double* p) {
         matrix[m+1] = (double*)malloc((m+2) * sizeof(double));
         matrix[m+1][0] = matrix[m][0] * (1 - p[m]);
         matrix[m+1][m+1] = matrix[m][m] * p[m];
-        k = 1;
-        while (++k < m) {
+        k = 0;
+        while (k < m) {
             matrix[m+1][k+1] = matrix[m][k] * p[m] + matrix[m][k+1] * (1 - p[m]);
+            k++;
         }
     } while (++m < n);
     return matrix;
@@ -24,7 +25,7 @@ double R(size_t n, size_t r, double* p) {
     double result = 0;
     do {
         result += s_matrix[n][r];
-    } while(++r < n);
+    } while(r++ < n);
     size_t m = 0;
     do {
         free(s_matrix[m]);
