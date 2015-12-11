@@ -9,10 +9,12 @@
 int main() {
     srand(time(NULL));
 
-    size_t iterations = 10000;
+    size_t iterations = 100;
 
     double rho = 100.0;
     double epsilon = 1E-4;
+
+    // double exp_quantiles[] = {1.96, 2.575, 3};
 
     size_t r = 180;
     size_t m = r * 2;
@@ -38,25 +40,29 @@ int main() {
     r = 140;
     m = r*2;
     realQ = get_Q(r, rho);
-    values = get_estimates(iterations, rho, epsilon, r, m, alpha);
-    printf("Difference is %f%%\n", 100*fabs((sum(values, iterations)/iterations-realQ)/realQ));
+    values = get_estimates(&iterations, rho, epsilon, r, m, alpha);
+    printf("%u: Difference is %f%%: %.15Lf - %.15f\n", iterations,
+            100*fabs((sum(values, iterations)/iterations-realQ)/realQ),
+            sum(values, iterations)/iterations, realQ);
     free(values);
 
+    /*
     alpha = 0.625; // 0.04%
     r = 160;
     m = r*2;
     realQ = get_Q(r, rho);
-    values = get_estimates(iterations, rho, epsilon, r, m, alpha);
-    printf("Difference is %f%%\n", 100*fabs((sum(values, iterations)/iterations-realQ)/realQ));
+    values = get_estimates(&iterations, rho, epsilon, r, m, alpha);
+    printf("%u: Difference is %f%%\n", iterations, 100*fabs((sum(values, iterations)/iterations-realQ)/realQ));
     free(values);
 
     alpha = 0.553125; // 14.86%
     r = 180;
     m = r*2;
     realQ = get_Q(r, rho);
-    values = get_estimates(iterations, rho, epsilon, r, m, alpha);
-    printf("Difference is %f%%\n", 100*fabs((sum(values, iterations)/iterations-realQ)/realQ));
+    values = get_estimates(&iterations, rho, epsilon, r, m, alpha);
+    printf("%u: Difference is %f%%\n", iterations, 100*fabs((sum(values, iterations)/iterations-realQ)/realQ));
     free(values);
+    */
 
     return 0;
 }
