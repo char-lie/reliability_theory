@@ -34,7 +34,7 @@ double R(size_t n, size_t r, double* p) {
 }
 
 double Q(double R, double rho, size_t n, double* a, double* t) {
-    long double exponent = 0;
+    long double exponent = 0.0;
     size_t i = 0;
     do {
         exponent += (1 - a[i]) * t[i];
