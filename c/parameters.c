@@ -25,7 +25,7 @@ float* get_a(size_t n, size_t m, float alpha) {
 }
 
 size_t estimate_n(size_t m, float rho, float epsilon, float alpha) {
-    return m + poisson_quantile(epsilon) * rho - (1 + alpha) * m / 2;
+    return poisson_quantile(epsilon) * rho - (log(4) - 1) * m / rho;
 }
 
 float* get_p(size_t n, float* a, float* t) {
