@@ -4,15 +4,15 @@
 #include "parameters.h"
 #include "estimates.h"
 
-double get_estimate(double rho, double epsilon, size_t r,
-                     size_t m, double alpha) {
+float get_estimate(float rho, float epsilon, size_t r,
+                     size_t m, float alpha) {
     size_t n = estimate_n(m, rho, epsilon, alpha);
-    double* a = get_a(n, m, alpha);
-    double* t = get_t(n, rho);
-    double* p = get_p(n, a, t);
+    float* a = get_a(n, m, alpha);
+    float* t = get_t(n, rho);
+    float* p = get_p(n, a, t);
 
-    double R_estimate = R(n, r, p);
-    double Q_estimate = Q(R_estimate, rho, n, a, t);
+    float R_estimate = R(n, r, p);
+    float Q_estimate = Q(R_estimate, rho, n, a, t);
 
     free(a);
     free(t);
@@ -20,21 +20,21 @@ double get_estimate(double rho, double epsilon, size_t r,
     return Q_estimate;
 }
 
-size_t estimate_iterations(long double V, long double avg) {
-    long double gamma = 2.575;
-    long double epsilon = 1E-4;
+size_t estimate_iterations(float V, float avg) {
+    float gamma = 2.575;
+    float epsilon = 1E-4;
     size_t estimate = (size_t)((gamma * gamma * V) / (epsilon * avg * avg))+1;
     return estimate;
 }
 
-double* get_estimates(size_t* iterations, double rho, double epsilon, size_t r,
-                      size_t m, double alpha) {
-    long double M = 0.0;
-    long double s = 0.0;
-    double currentQ;
-    long double V;
+float* get_estimates(size_t* iterations, float rho, float epsilon, size_t r,
+                      size_t m, float alpha) {
+    float M = 0.0;
+    float s = 0.0;
+    float currentQ;
+    float V;
     size_t N = 0;
-    double* sample = (double*)malloc(40000 * sizeof(double));
+    float* sample = (float*)malloc(40000 * sizeof(float));
     size_t min_iter = 1000, max_iter = min_iter;
     do {
         currentQ = sample[N] = get_estimate(rho, epsilon, r, m, alpha);
@@ -46,31 +46,31 @@ double* get_estimates(size_t* iterations, double rho, double epsilon, size_t r,
             max_iter = estimate_iterations(V, s/N);
         }
         if (N % 1000 == 0) {
-            printf("N=%u: V=%.25Lf, avg=%.25Lf -> %u\n", N, V, s/N, max_iter);
+            printf("N=%u: V=%.25f, avg=%.25f -> %u\n", N, V, s/N, max_iter);
         }
     } while (N < max_iter);
-    printf("Average is %.25Lf\n", s/N);
+    printf("Average is %.25f\n", s/N);
     *iterations = N;
     return sample;
 }
 
-long double sum(double* values, size_t length) {
-    long double result = 0.0;
+float sum(float* values, size_t length) {
+    float result = 0.0;
     while (length-- > 0) {
-        result += (long double)values[length];
+        result += (float)values[length];
     }
     return result;
 }
 
-long double deviation(double avg, double* sample, size_t length) {
-    long double dev = 0.0;
+float deviation(float avg, float* sample, size_t length) {
+    float dev = 0.0;
     while (length-- > 0) {
         dev += (avg - sample[length]) * (avg - sample[length]);
     }
     return dev;
 }
 
-int in_array(double value, double* array, size_t length, double EPSILON) {
+int in_array(float value, float* array, size_t length, float EPSILON) {
     while (length-- > 0) {
         if (fabs(value - array[length]) < EPSILON) {
             return 1;
@@ -79,19 +79,19 @@ int in_array(double value, double* array, size_t length, double EPSILON) {
     return 0;
 }
 
-void estimate_alpha(size_t* iterations, double rho, double epsilon, size_t r,
-                      size_t m, size_t deepness, double** p_alphas, double** p_relative_deviations) {
+void estimate_alpha(size_t* iterations, float rho, float epsilon, size_t r,
+                      size_t m, size_t deepness, float** p_alphas, float** p_relative_deviations) {
     size_t max_alphas = 5 + 3 * deepness;
     size_t steps_count = 5;
-    double step = 0.2;
-    double* values;
-    double* alphas;
-    double* relative_deviations;
-    *p_alphas = alphas = (double*)malloc(max_alphas * sizeof(double));
+    float step = 0.2;
+    float* values;
+    float* alphas;
+    float* relative_deviations;
+    *p_alphas = alphas = (float*)malloc(max_alphas * sizeof(float));
     *p_relative_deviations =
-       relative_deviations = (double*)malloc(max_alphas * sizeof(double));
-    double best_alpha = 0.5, best_deviation = 999, avg_alpha;
-    double current_alpha, sample_sum;
+       relative_deviations = (float*)malloc(max_alphas * sizeof(float));
+    float best_alpha = 0.5, best_deviation = 999, avg_alpha;
+    float current_alpha, sample_sum;
     size_t alphas_count = 0, current_step;
     do {
         current_step = 0;
@@ -124,18 +124,18 @@ void estimate_alpha(size_t* iterations, double rho, double epsilon, size_t r,
 }
 
 /*
-void estimate_m(size_t iterations, double rho, double epsilon, size_t r,
-                    double alpha) {
+void estimate_m(size_t iterations, float rho, float epsilon, size_t r,
+                    float alpha) {
     size_t max_alphas = 10 + 10;
     size_t steps_count = 5;
-    double step = 0.2;
-    double* values;
-    double* alphas;
-    double* relative_deviations;
-    alphas = (double*)malloc(max_alphas * sizeof(double));
-    relative_deviations = (double*)malloc(max_alphas * sizeof(double));
-    double best_alpha = 0.5, best_deviation = 999, avg_alpha;
-    double current_alpha, sample_sum;
+    float step = 0.2;
+    float* values;
+    float* alphas;
+    float* relative_deviations;
+    alphas = (float*)malloc(max_alphas * sizeof(float));
+    relative_deviations = (float*)malloc(max_alphas * sizeof(float));
+    float best_alpha = 0.5, best_deviation = 999, avg_alpha;
+    float current_alpha, sample_sum;
     size_t alphas_count = 0, current_step;
     do {
         current_step = 0;

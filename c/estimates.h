@@ -1,9 +1,9 @@
 #ifndef ESTIMATES
 #define ESTIMATES
 
-double** s(size_t n, double* p);
-double R(size_t n, size_t r, double* p);
-double Q(double R, double rho, size_t n, double* a, double* t);
+float** s(size_t n, float* p);
+float R(size_t n, size_t r, float* p);
+float Q(float R, float rho, size_t n, float* a, float* t);
 
 #endif
 

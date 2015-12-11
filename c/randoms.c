@@ -2,15 +2,15 @@
 #include <math.h>
 #include <time.h>
 
-double random_double() {
+float random_float() {
     return (rand() + 1.0) / (RAND_MAX + 1.0);
 }
 
-double random_exponential(double rho) {
-    return -log(random_double()) / rho;
+float random_exponential(float rho) {
+    return -log(random_float()) / rho;
 }
 
-double poisson_quantile(double epsilon) {
+float poisson_quantile(float epsilon) {
     return -log(epsilon);
 }
 

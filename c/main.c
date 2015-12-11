@@ -9,19 +9,19 @@
 int main() {
     srand(time(NULL));
 
-    size_t iterations = 100;
+    size_t iterations;
 
-    double rho = 100.0;
-    double epsilon = 1E-4;
+    float rho = 100.0;
+    float epsilon = 1E-4;
 
-    // double exp_quantiles[] = {1.96, 2.575, 3};
+    // float exp_quantiles[] = {1.96, 2.575, 3};
 
     size_t r = 180;
     size_t m = r * 2;
 
     /*
-    double* alphas;
-    double* relative_deviations;
+    float* alphas;
+    float* relative_deviations;
     size_t deepness = 6;
     estimate_alpha(iterations, rho, epsilon, r, m, deepness,
                    &alphas, &relative_deviations);
@@ -33,15 +33,16 @@ int main() {
     free(relative_deviations);
     */
     double realQ;
-    double alpha;
-    double* values;
+    float alpha;
+    float* values;
 
+    iterations = 0;
     alpha = 0.725; // 2.86%
     r = 140;
     m = r*2;
     realQ = get_Q(r, rho);
     values = get_estimates(&iterations, rho, epsilon, r, m, alpha);
-    printf("%u: Difference is %f%%: %.15Lf - %.15f\n", iterations,
+    printf("%u: Difference is %f%%: %E - %E\n", iterations,
             100*fabs((sum(values, iterations)/iterations-realQ)/realQ),
             sum(values, iterations)/iterations, realQ);
     free(values);

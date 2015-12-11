@@ -1,8 +1,8 @@
 #ifndef RANDOMS
 #define RANDOMS
 
-double random_exponential(double rho);
-double poisson_quantile(double epsilon);
+float random_exponential(float rho);
+float poisson_quantile(float epsilon);
 
 #endif
 
