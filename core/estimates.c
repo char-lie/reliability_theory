@@ -2,35 +2,33 @@
 #include <math.h>
 #include "parameters.h"
 
-float** s(size_t n, float* p) {
-    float** matrix = (float**)malloc((n+1) * sizeof(float*));
-    matrix[0] = (float*)malloc(sizeof(float));
-    matrix[0][0] = 1;
+float R(size_t n, size_t r, float* p) {
+    float** s = (float**)malloc((n+1) * sizeof(float*));
+    s[0] = (float*)malloc(sizeof(float));
+    s[0][0] = 1;
     size_t k, m = 0;
     do {
-        matrix[m+1] = (float*)malloc((m+2) * sizeof(float));
-        matrix[m+1][0] = matrix[m][0] * (1 - p[m]);
-        matrix[m+1][m+1] = matrix[m][m] * p[m];
+        s[m+1] = (float*)malloc((m+2) * sizeof(float));
+        s[m+1][0] = s[m][0] * (1 - p[m]);
+        s[m+1][m+1] = s[m][m] * p[m];
         k = 0;
         while (k < m) {
-            matrix[m+1][k+1] = matrix[m][k] * p[m] + matrix[m][k+1] * (1 - p[m]);
+            s[m+1][k+1] = s[m][k] * p[m] + s[m][k+1] * (1 - p[m]);
             k++;
         }
     } while (++m < n);
-    return matrix;
-}
 
-float R(size_t n, size_t r, float* p) {
-    float** s_matrix = s(n, p);
-    float result = 0;
+    float result = 0.0;
     do {
-        result += s_matrix[n][r];
+        result += s[n][r];
     } while(r++ < n);
-    size_t m = 0;
+
+    m = 0;
     do {
-        free(s_matrix[m]);
+        free(s[m]);
     } while (m++ < n);
-    free(s_matrix);
+    free(s);
+
     return result;
 }
 
