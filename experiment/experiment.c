@@ -6,9 +6,12 @@
 
 float get_estimate(float rho, float epsilon, size_t r,
                      size_t m, float alpha) {
-    size_t n = estimate_n(m, rho, epsilon, alpha);
-    float* a = get_a(n, m, alpha);
-    float* t = get_t(n, rho);
+    // size_t n = estimate_n(m, rho, epsilon, alpha);
+    // float* a = get_a(n, m, alpha);
+    // float* t = get_t(n, rho);
+    float* a;
+    float* t;
+    size_t n = estimate_n(m, rho, epsilon, alpha, &a, &t);
     float* p = get_p(n, a, t);
 
     float R_estimate = R(n, r, p);
@@ -32,7 +35,7 @@ float* get_estimates(size_t* iterations, float rho, float epsilon, size_t r,
     float M = 0.0;
     float s = 0.0;
     float currentQ;
-    float V;
+    float V = 0.0;
     size_t N = 0;
     float* sample = (float*)malloc(40000 * sizeof(float));
     size_t min_iter = 1000, max_iter = min_iter;
@@ -46,10 +49,9 @@ float* get_estimates(size_t* iterations, float rho, float epsilon, size_t r,
             max_iter = estimate_iterations(V, s/N);
         }
         if (N % 1000 == 0) {
-            printf("N=%u: V=%.25f, avg=%.25f -> %u\n", N, V, s/N, max_iter);
+            printf("N=%zu: V=%E, avg=%E -> %zu\n", N, V, s/N, max_iter);
         }
     } while (N < max_iter);
-    printf("Average is %.25f\n", s/N);
     *iterations = N;
     return sample;
 }

@@ -18,14 +18,58 @@ float* get_a(size_t n, size_t m, float alpha) {
     do {
         result[i] = log(a + b * i);
     } while (++i < m);
+    if (i == n) {
+        return result;
+    }
     do {
         result[i] = 1.0;
     } while (++i < n);
     return result;
 }
 
-size_t estimate_n(size_t m, float rho, float epsilon, float alpha) {
-    return poisson_quantile(epsilon) * rho - (log(4) - 1) * m / rho;
+size_t estimate_n(size_t m, float rho, float epsilon, float alpha,
+                  float** pa, float** pt) {
+    /*
+    size_t n = (size_t)(poisson_quantile(epsilon) * rho);
+    *pa = get_a(n, m, alpha);
+    *pt = get_t(n, rho);
+    return n;
+    */
+    size_t n = m;
+    float *t, *a;
+    *pa = a = get_a(n, m, alpha);
+    *pt = t = get_t(n, rho);
+    float rest = poisson_quantile(epsilon);
+    size_t i = 0;
+    do {
+        rest -= a[i] * t[i];
+    } while(++i < n);
+    if (rest <= 0.0) {
+        return n;
+    }
+
+    n = (size_t)(rest * rho) + 1;
+    t = (float*)realloc(t, n * sizeof(float));
+    while (rest > 0) {
+        if (i >= n) {
+            n += (size_t)(rest * rho) + 1;
+            t = (float*)realloc(t, n * sizeof(float));
+        }
+        t[i] = random_exponential(rho);
+        rest -= t[i];
+        i++;
+    }
+    if (i < n) {
+        n = i;
+        t = (float*)realloc(t, n * sizeof(float));
+    }
+    *pa = a = (float*)realloc(a, n * sizeof(float));
+    i = m;
+    do {
+        a[i] = 1.0;
+    } while (++i < n);
+    *pt = t;
+    return n;
 }
 
 float* get_p(size_t n, float* a, float* t) {
@@ -44,10 +88,10 @@ float get_Q(size_t r, float rho) {
     long double accumulator = 1.0;
     size_t i = 1;
     do {
-        accumulator *= rho/i;
+        accumulator *= ((long double)rho)/i;
         result += accumulator;
     } while (++i < r);
-    return (float)(1 - exp(-rho) * (1 + result));
+    return (float)(1 - exp((long double)(-rho)) * (1 + result));
     /*
     size_t k = r;
     do {
