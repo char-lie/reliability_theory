@@ -32,7 +32,7 @@ int main() {
     free(alphas);
     free(relative_deviations);
     */
-    double realQ;
+    float realQ;
     float alpha;
     float* values;
 

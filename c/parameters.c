@@ -39,7 +39,7 @@ float* get_p(size_t n, float* a, float* t) {
     return result;
 }
 
-double get_Q(size_t r, double rho) {
+float get_Q(size_t r, float rho) {
     long double result = 0.0;
     long double accumulator = 1.0;
     size_t i = 1;
@@ -47,7 +47,7 @@ double get_Q(size_t r, double rho) {
         accumulator *= rho/i;
         result += accumulator;
     } while (++i < r);
-    return (double)(1 - exp(-rho) * (1 + result));
+    return (float)(1 - exp(-rho) * (1 + result));
     /*
     size_t k = r;
     do {
