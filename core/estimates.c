@@ -39,9 +39,9 @@ float Q(float R, float rho, size_t n, float* a, float* t) {
         exponent += (1 - a[i]) * t[i];
     } while (++i < n);
     float result = R * exp(rho * exponent);
-    while (n-- > 0) {
-        result *= a[n];
-    }
+    do {
+        result *= *a;
+    } while(*(++a) < 1.0);
     return result;
 }
 
