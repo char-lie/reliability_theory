@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include "parameters.h"
-#include "estimates.h"
+#include "../core/parameters.h"
+#include "../core/estimates.h"
 
 float get_estimate(float rho, float epsilon, size_t r,
                      size_t m, float alpha) {

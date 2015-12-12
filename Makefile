@@ -1,3 +1,7 @@
 CC=colorgcc
+CORE=randoms parameters estimates
+EXPERIMENTS=experiment
+CORE_FILES=$(CORE:%=./core/%.c)
+EXPERIMENT_FILES=$(EXPERIMENTS:%=./experiment/%.c)
 all:
-	$(CC) -o main randoms.c parameters.c estimates.c experiment.c main.c -lm -O3 -Wall
+	$(CC) -o bin/main $(CORE_FILES) $(EXPERIMENT_FILES) main.c -lm -O3 -Wall

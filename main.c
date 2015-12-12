@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include "parameters.h"
-#include "estimates.h"
-#include "experiment.h"
+#include "core/parameters.h"
+#include "core/estimates.h"
+#include "experiment/experiment.h"
 
 int main() {
     srand(time(NULL));
