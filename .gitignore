@@ -3,6 +3,7 @@
 
 # Logs
 *.log
+*.out
 
 # Binaries and objects
 bin/
