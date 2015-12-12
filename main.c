@@ -42,8 +42,8 @@ int main() {
     m = r*2;
     realQ = get_Q(r, rho);
     values = get_estimates(&iterations, rho, epsilon, r, m, alpha);
-    printf("%u: Difference is %f%%: %E - %E\n", iterations,
-            100*fabs((sum(values, iterations)/iterations-realQ)/realQ),
+    printf("%zu: Difference is %E: %E - %E\n", iterations,
+            fabs((sum(values, iterations)/iterations-realQ)/realQ),
             sum(values, iterations)/iterations, realQ);
     free(values);
 
