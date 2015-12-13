@@ -7,7 +7,7 @@ float* get_estimates(size_t* iterations, float rho, float epsilon, size_t r,
 float sum(float* values, size_t length);
 float deviation(float avg, float* sample, size_t length);
 
-int in_array(float value, float* array, size_t length, float EPSILON);
+size_t in_array(float value, float* array, size_t length, float EPSILON);
 
 #endif
 

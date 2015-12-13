@@ -7,7 +7,7 @@
 #include "experiment/experiment.h"
 #include "experiment/alpha.h"
 
-int main() {
+int main (int argc, char** argv) {
     srand(time(NULL));
 
     size_t iterations;
@@ -17,22 +17,23 @@ int main() {
 
     // float exp_quantiles[] = {1.96, 2.575, 3};
 
-    size_t r = 180;
-    size_t m = r * 2;
+    size_t r = argc > 1 ? (size_t)atoi(argv[1]) : 180;
 
     float* alphas;
-    float* relative_deviations;
+    float** ms;
+    float** relative_deviations;
     size_t deepness = 4;
     iterations = 2000;
-    size_t alphas_count;
-    alphas_count = estimate_alpha(&iterations, rho, epsilon, r, m, deepness,
-                                  &alphas, &relative_deviations);
+    estimate_alpha(&iterations, rho, epsilon, r, deepness,
+                   &alphas, &ms, &relative_deviations);
+    /*
     while (--alphas_count > 0) {
         printf("alpha=%f, reldev=%f\n", alphas[alphas_count],
                                         relative_deviations[alphas_count]);
     }
     free(alphas);
     free(relative_deviations);
+    */
     /*
     float realQ;
     float alpha;
