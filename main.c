@@ -5,6 +5,7 @@
 #include "core/parameters.h"
 #include "core/estimates.h"
 #include "experiment/experiment.h"
+#include "experiment/alpha.h"
 
 int main() {
     srand(time(NULL));
@@ -19,26 +20,37 @@ int main() {
     size_t r = 180;
     size_t m = r * 2;
 
-    /*
     float* alphas;
     float* relative_deviations;
-    size_t deepness = 6;
-    estimate_alpha(iterations, rho, epsilon, r, m, deepness,
-                   &alphas, &relative_deviations);
-    size_t i = 5 + 3 * deepness;
-    while (--i > 0) {
-        printf("alpha=%f, reldev=%f\n", alphas[i], relative_deviations[i]);
+    size_t deepness = 4;
+    iterations = 2000;
+    size_t alphas_count;
+    alphas_count = estimate_alpha(&iterations, rho, epsilon, r, m, deepness,
+                                  &alphas, &relative_deviations);
+    while (--alphas_count > 0) {
+        printf("alpha=%f, reldev=%f\n", alphas[alphas_count],
+                                        relative_deviations[alphas_count]);
     }
     free(alphas);
     free(relative_deviations);
-    */
+    /*
     float realQ;
     float alpha;
     float* values;
 
     iterations = 0;
+    */
+    /*
     alpha = 0.725; // 2.86%
     r = 140;
+    */
+    /*
+    alpha = 0.625;
+    r = 160;
+    */
+    /*
+    alpha = 0.553125;
+    r = 180;
     m = r*2;
     realQ = get_Q(r, rho);
     values = get_estimates(&iterations, rho, epsilon, r, m, alpha);
@@ -46,6 +58,7 @@ int main() {
             fabs((sum(values, iterations)/iterations-realQ)/realQ),
             sum(values, iterations)/iterations, realQ);
     free(values);
+    */
 
     /*
     alpha = 0.625; // 0.04%

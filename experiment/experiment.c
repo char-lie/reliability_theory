@@ -37,18 +37,27 @@ float* get_estimates(size_t* iterations, float rho, float epsilon, size_t r,
     float currentQ;
     float V = 0.0;
     size_t N = 0;
-    float* sample = (float*)malloc(40000 * sizeof(float));
-    size_t min_iter = 1000, max_iter = min_iter;
+    float* sample;
+    size_t min_iter, max_iter;
+    if (*iterations == 0) {
+        sample = (float*)malloc(40000 * sizeof(float));
+        min_iter = 1000;
+        max_iter = min_iter;
+    } else {
+        sample = (float*)malloc(*iterations * sizeof(float));
+        min_iter = *iterations;
+        max_iter = *iterations;
+    }
     do {
         currentQ = sample[N] = get_estimate(rho, epsilon, r, m, alpha);
         s += currentQ;
         M += currentQ * currentQ;
         N ++;
-        if (N >= min_iter) {
+        if (*iterations == 0 && N >= min_iter) {
             V = (M - (s * s) / N) / (N-1);
             max_iter = estimate_iterations(V, s/N);
         }
-        if (N % 1000 == 0) {
+        if (*iterations == 0 && N % 1000 == 0) {
             printf("N=%zu: V=%E, avg=%E -> %zu\n", N, V, s/N, max_iter);
         }
     } while (N < max_iter);
@@ -80,93 +89,4 @@ int in_array(float value, float* array, size_t length, float EPSILON) {
     }
     return 0;
 }
-
-void estimate_alpha(size_t* iterations, float rho, float epsilon, size_t r,
-                      size_t m, size_t deepness, float** p_alphas, float** p_relative_deviations) {
-    size_t max_alphas = 5 + 3 * deepness;
-    size_t steps_count = 5;
-    float step = 0.2;
-    float* values;
-    float* alphas;
-    float* relative_deviations;
-    *p_alphas = alphas = (float*)malloc(max_alphas * sizeof(float));
-    *p_relative_deviations =
-       relative_deviations = (float*)malloc(max_alphas * sizeof(float));
-    float best_alpha = 0.5, best_deviation = 999, avg_alpha;
-    float current_alpha, sample_sum;
-    size_t alphas_count = 0, current_step;
-    do {
-        current_step = 0;
-        avg_alpha = best_alpha;
-        do {
-            current_alpha = avg_alpha + (1.0 - 2 * (current_step&1)) * step
-                            * ((current_step+1)/2);
-            if (in_array(current_alpha, alphas, alphas_count, step/2)) {
-                continue;
-            }
-            printf("Estimate alpha=%f\n", current_alpha);
-            values = get_estimates(iterations, rho, epsilon, r, m,
-                                   current_alpha);
-            alphas[alphas_count] = current_alpha;
-            sample_sum = sum(values, *iterations);
-            relative_deviations[alphas_count] = sqrt(*iterations
-                * deviation(sample_sum/(*iterations), values, *iterations))
-                / sample_sum;
-            free(values);
-            if (relative_deviations[alphas_count] < best_deviation) {
-                best_deviation = relative_deviations[alphas_count];
-                best_alpha = alphas[alphas_count];
-                printf("New best alpha=%f: relative deviation is %f\n",
-                        best_alpha, best_deviation);
-            }
-            alphas_count++;
-        } while (++current_step < steps_count);
-        step /= 2;
-    } while (deepness-- > 0);
-}
-
-/*
-void estimate_m(size_t iterations, float rho, float epsilon, size_t r,
-                    float alpha) {
-    size_t max_alphas = 10 + 10;
-    size_t steps_count = 5;
-    float step = 0.2;
-    float* values;
-    float* alphas;
-    float* relative_deviations;
-    alphas = (float*)malloc(max_alphas * sizeof(float));
-    relative_deviations = (float*)malloc(max_alphas * sizeof(float));
-    float best_alpha = 0.5, best_deviation = 999, avg_alpha;
-    float current_alpha, sample_sum;
-    size_t alphas_count = 0, current_step;
-    do {
-        current_step = 0;
-        avg_alpha = best_alpha;
-        do {
-            current_alpha = avg_alpha + (1.0 - 2 * (current_step&1)) * step
-                            * ((current_step+1)/2);
-            if (in_array(current_alpha, alphas, alphas_count, step/2)) {
-                continue;
-            }
-            printf("Estimate alpha=%f\n", current_alpha);
-            values = get_estimates(iterations, rho, epsilon, r, m,
-                                   current_alpha);
-            alphas[alphas_count] = current_alpha;
-            sample_sum = sum(values, iterations);
-            relative_deviations[alphas_count] = sqrt(iterations
-                * deviation(sample_sum/iterations, values, iterations))
-                / sample_sum;
-            free(values);
-            if (relative_deviations[alphas_count] < best_deviation) {
-                best_deviation = relative_deviations[alphas_count];
-                best_alpha = alphas[alphas_count];
-                printf("New best alpha=%f: relative deviation is %f\n",
-                        best_alpha, best_deviation);
-            }
-            alphas_count++;
-        } while (++current_step < steps_count);
-        step /= 2;
-    } while (deepness-- > 0);
-}
-*/
 

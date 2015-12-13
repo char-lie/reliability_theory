@@ -1,7 +1,7 @@
 CC=colorgcc
 CCFLAGS?=-Wall
 CORE=randoms parameters estimates
-EXPERIMENTS=experiment
+EXPERIMENTS=experiment alpha
 CORE_FILES=$(CORE:%=./core/%.c)
 EXPERIMENT_FILES=$(EXPERIMENTS:%=./experiment/%.c)
 
