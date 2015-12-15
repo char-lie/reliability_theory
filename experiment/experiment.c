@@ -4,6 +4,7 @@
 #include "../core/parameters.h"
 #include "../core/estimates.h"
 
+// float gammas[] = {1.96, 2.575, 3};
 #define GAMMA_SQUARED (2.575*2.575)
 #define EPSILON (1E-4)
 #define ESTIMATE_ITERATIONS(V,avg) ((size_t)((GAMMA_SQUARED * V) /\
