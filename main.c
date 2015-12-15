@@ -35,7 +35,9 @@ int print_usage (char* executable) {
 }
 
 int main (int argc, char** argv) {
+
     enum EstimateAction action = ESTIMATE_PARAMETERS;
+
     if (argc > 1) {
         if (!strcmp(argv[1], "--parameters") || !strcmp(argv[1], "-p")) {
             action = ESTIMATE_PARAMETERS;
@@ -50,11 +52,9 @@ int main (int argc, char** argv) {
         print_usage(*argv);
         return 1;
     }
+
     srand(time(NULL));
 
-    size_t iterations;
-
-    // float exp_quantiles[] = {1.96, 2.575, 3};
 
     struct EstimateParameters params = {
         .rho = 100.0,
@@ -64,13 +64,13 @@ int main (int argc, char** argv) {
         .alpha = argc > 4 ? (float)atof(argv[4]) : 0.0,
     };
 
-    float* values;
-
+    size_t iterations;
     float* alphas;
     float** ms;
     float** relative_deviations;
     size_t deepness;
 
+    float* values;
     float realQ;
 
     switch (action) {
@@ -91,59 +91,6 @@ int main (int argc, char** argv) {
             free(values);
             break;
     }
-
-    /*
-    while (--alphas_count > 0) {
-        printf("alpha=%f, reldev=%f\n", alphas[alphas_count],
-                                        relative_deviations[alphas_count]);
-    }
-    free(alphas);
-    free(relative_deviations);
-    */
-    /*
-    float realQ;
-    float alpha;
-    float* values;
-
-    iterations = 0;
-    */
-    /*
-    alpha = 0.725; // 2.86%
-    r = 140;
-    */
-    /*
-    alpha = 0.625;
-    r = 160;
-    */
-    /*
-    alpha = 0.553125;
-    r = 180;
-    m = r*2;
-    realQ = get_Q(r, rho);
-    values = get_estimates(&iterations, rho, epsilon, r, m, alpha);
-    printf("%zu: Difference is %E: %E - %E\n", iterations,
-            fabs((sum(values, iterations)/iterations-realQ)/realQ),
-            sum(values, iterations)/iterations, realQ);
-    free(values);
-    */
-
-    /*
-    alpha = 0.625; // 0.04%
-    r = 160;
-    m = r*2;
-    realQ = get_Q(r, rho);
-    values = get_estimates(&iterations, rho, epsilon, r, m, alpha);
-    printf("%u: Difference is %f%%\n", iterations, 100*fabs((sum(values, iterations)/iterations-realQ)/realQ));
-    free(values);
-
-    alpha = 0.553125; // 14.86%
-    r = 180;
-    m = r*2;
-    realQ = get_Q(r, rho);
-    values = get_estimates(&iterations, rho, epsilon, r, m, alpha);
-    printf("%u: Difference is %f%%\n", iterations, 100*fabs((sum(values, iterations)/iterations-realQ)/realQ));
-    free(values);
-    */
 
     return 0;
 }
