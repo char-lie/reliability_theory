@@ -76,7 +76,7 @@ int main (int argc, char** argv) {
     switch (action) {
         case ESTIMATE_PARAMETERS:
             deepness = 4;
-            iterations = argc > 3 ? (size_t)atoi(argv[3]) : 2000;;
+            iterations = argc > 3 ? (size_t)atoi(argv[3]) : 2000;
             estimate_alpha(&iterations, &params, deepness,
                            &alphas, &ms, &relative_deviations);
             break;
