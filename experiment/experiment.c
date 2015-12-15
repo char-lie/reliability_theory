@@ -4,10 +4,12 @@
 #include "../core/parameters.h"
 #include "../core/estimates.h"
 
+#define GAMMA_SQUARED (2.575*2.575)
+#define EPSILON (1E-4)
+#define ESTIMATE_ITERATIONS(V,avg) ((size_t)((GAMMA_SQUARED * V) /\
+                                            (EPSILON * avg * avg))+1)
+
 float get_estimate(struct EstimateParameters* params) {
-    // size_t n = estimate_n(m, rho, epsilon, alpha);
-    // float* a = get_a(n, m, alpha);
-    // float* t = get_t(n, rho);
     float* a;
     float* t;
     size_t n = estimate_n(params, &a, &t);
@@ -20,13 +22,6 @@ float get_estimate(struct EstimateParameters* params) {
     free(t);
     free(p);
     return Q_estimate;
-}
-
-size_t estimate_iterations(float V, float avg) {
-    float gamma = 2.575;
-    float epsilon = 1E-4;
-    size_t estimate = (size_t)((gamma * gamma * V) / (epsilon * avg * avg))+1;
-    return estimate;
 }
 
 float* get_estimates(size_t* iterations, struct EstimateParameters* params) {
@@ -53,7 +48,7 @@ float* get_estimates(size_t* iterations, struct EstimateParameters* params) {
         N ++;
         if (*iterations == 0 && N >= min_iter) {
             V = (M - (s * s) / N) / (N-1);
-            max_iter = estimate_iterations(V, s/N);
+            max_iter = ESTIMATE_ITERATIONS(V, s/N);
         }
         if (*iterations == 0 && N % 1000 == 0) {
             printf("N=%zu: V=%E, avg=%E -> %zu\n", N, V, s/N, max_iter);
@@ -79,9 +74,9 @@ float deviation(float avg, float* sample, size_t length) {
     return dev;
 }
 
-int in_array(float value, float* array, size_t length, float EPSILON) {
+int in_array(float value, float* array, size_t length, float epsilon) {
     while (length-- > 0) {
-        if (fabs(value - array[length]) < EPSILON) {
+        if (fabs(value - array[length]) < epsilon) {
             return 1;
         }
     }
