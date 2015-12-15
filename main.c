@@ -69,6 +69,7 @@ int main (int argc, char** argv) {
     float** ms;
     float** relative_deviations;
     size_t deepness;
+    size_t i;
 
     float* values;
     float realQ;
@@ -79,6 +80,15 @@ int main (int argc, char** argv) {
             iterations = argc > 3 ? (size_t)atoi(argv[3]) : 2000;
             estimate_alpha(&iterations, &params, deepness,
                            &alphas, &ms, &relative_deviations);
+            i = 0;
+            while (relative_deviations[i] && ms[i]) {
+                free(relative_deviations[i]);
+                free(ms[i]);
+                i++;
+            }
+            free(relative_deviations);
+            free(ms);
+            free(alphas);
             break;
         case ESTIMATE_PROBABILITY:
             iterations = 0;
