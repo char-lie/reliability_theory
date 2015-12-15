@@ -6,17 +6,23 @@
 #include "alpha.h"
 
 float estimate_alpha_step (size_t* iterations,
-        struct EstimateParameters* params, size_t deepness, float* alphas,
+        struct EstimateParameters* params, size_t deepness,
         float** ms, float** relative_deviations, size_t alphas_count) {
     float sample_sum, best_deviation = 999;
     float* values;
     float step = 20;
-    size_t max_ms = 5 + 3 * deepness, ms_count = 0;
+    size_t max_ms = 5 + 3 * deepness + 1, ms_count = 0;
     ms[alphas_count] = (float*)malloc(max_ms * sizeof(float));
     relative_deviations[alphas_count] = (float*)malloc(max_ms * sizeof(float));
     float avg_m, best_m = 2*params->r;
     size_t current_step;
     size_t steps_count = 5;
+
+    current_step = 0;
+    do {
+        relative_deviations[alphas_count][current_step]
+                       = ms[alphas_count][current_step] = -1.0;
+    } while (++current_step < max_ms);
 
     do {
         current_step = 0;
@@ -58,16 +64,23 @@ float estimate_alpha_step (size_t* iterations,
 size_t estimate_alpha(size_t* iterations, struct EstimateParameters* params,
         size_t deepness, float** p_alphas, float*** p_ms,
         float*** p_relative_deviations) {
-    size_t max_alphas = 5 + 3 * deepness;
+    size_t max_alphas = 5 + 3 * deepness + 1;
     size_t steps_count = 5;
     float step = 0.2;
     float* alphas;
     float** relative_deviations;
-    float** ms = *p_ms = (float**)malloc(max_alphas * sizeof(float*));
-    alphas = (float*)malloc(max_alphas * sizeof(float));
-    relative_deviations = (float**)malloc(max_alphas * sizeof(float));
+    relative_deviations = *p_relative_deviations
+                        = (float**)malloc(max_alphas * sizeof(float*));
+    float** ms = *p_ms  = (float**)malloc(max_alphas * sizeof(float*));
+    alphas = *p_alphas = (float*)malloc(max_alphas * sizeof(float));
     float best_alpha = 0.5, best_deviation = 999, avg_alpha;
     size_t alphas_count = 0, current_step;
+
+    current_step = 0;
+    do {
+        ms[current_step] = relative_deviations[current_step] = 0;
+        alphas[current_step] = -1.0;
+    } while (++current_step < max_alphas);
 
     do {
         current_step = 0;
@@ -81,8 +94,8 @@ size_t estimate_alpha(size_t* iterations, struct EstimateParameters* params,
             alphas[alphas_count] = params->alpha;
             printf("Next alpha is %E\n", params->alpha);
             float tmp = estimate_alpha_step(iterations, params, deepness,
-                                 alphas, relative_deviations, ms, alphas_count);
-            alphas_count += tmp <= 0.0 ? 0 : 1;
+                                  relative_deviations, ms, alphas_count);
+            alphas_count++;
             if (tmp > 0.0 && tmp < best_deviation) {
                 best_alpha = params->alpha;
                 best_deviation = tmp;
