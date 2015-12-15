@@ -1,7 +1,15 @@
 #ifndef PARAMETERS
 #define PARAMETERS
 
-size_t estimate_n(size_t m, float rho, float epsilon, float alpha,
+struct EstimateParameters {
+    float rho;
+    float epsilon;
+    size_t r;
+    size_t m;
+    float alpha;
+};
+
+size_t estimate_n(struct EstimateParameters* params,
                   float** pa, float** pt);
 float* get_a(size_t n, size_t m, float alpha);
 float* get_t(size_t n, float rho);

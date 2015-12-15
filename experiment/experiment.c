@@ -4,18 +4,17 @@
 #include "../core/parameters.h"
 #include "../core/estimates.h"
 
-float get_estimate(float rho, float epsilon, size_t r,
-                     size_t m, float alpha) {
+float get_estimate(struct EstimateParameters* params) {
     // size_t n = estimate_n(m, rho, epsilon, alpha);
     // float* a = get_a(n, m, alpha);
     // float* t = get_t(n, rho);
     float* a;
     float* t;
-    size_t n = estimate_n(m, rho, epsilon, alpha, &a, &t);
+    size_t n = estimate_n(params, &a, &t);
     float* p = get_p(n, a, t);
 
-    float R_estimate = R(n, r, p);
-    float Q_estimate = Q(R_estimate, rho, n, a, t);
+    float R_estimate = R(n, params->r, p);
+    float Q_estimate = Q(R_estimate, params->rho, n, a, t);
 
     free(a);
     free(t);
@@ -30,8 +29,7 @@ size_t estimate_iterations(float V, float avg) {
     return estimate;
 }
 
-float* get_estimates(size_t* iterations, float rho, float epsilon, size_t r,
-                      size_t m, float alpha) {
+float* get_estimates(size_t* iterations, struct EstimateParameters* params) {
     float M = 0.0;
     float s = 0.0;
     float currentQ;
@@ -49,7 +47,7 @@ float* get_estimates(size_t* iterations, float rho, float epsilon, size_t r,
         max_iter = *iterations;
     }
     do {
-        currentQ = sample[N] = get_estimate(rho, epsilon, r, m, alpha);
+        currentQ = sample[N] = get_estimate(params);
         s += currentQ;
         M += currentQ * currentQ;
         N ++;

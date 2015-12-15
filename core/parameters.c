@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "randoms.h"
+#include "parameters.h"
 
 float* get_t(size_t n, float rho) {
     float* result = (float*)malloc(n * sizeof(float));
@@ -27,19 +28,18 @@ float* get_a(size_t n, size_t m, float alpha) {
     return result;
 }
 
-size_t estimate_n(size_t m, float rho, float epsilon, float alpha,
-                  float** pa, float** pt) {
+size_t estimate_n(struct EstimateParameters* params, float** pa, float** pt) {
     /*
     size_t n = (size_t)(poisson_quantile(epsilon) * rho);
     *pa = get_a(n, m, alpha);
     *pt = get_t(n, rho);
     return n;
     */
-    size_t n = m;
+    size_t n = params->m;
     float *t, *a;
-    *pa = a = get_a(n, m, alpha);
-    *pt = t = get_t(n, rho);
-    float rest = poisson_quantile(epsilon);
+    *pa = a = get_a(n, params->m, params->alpha);
+    *pt = t = get_t(n, params->rho);
+    float rest = poisson_quantile(params->epsilon);
     size_t i = 0;
     do {
         rest -= a[i] * t[i];
@@ -48,14 +48,14 @@ size_t estimate_n(size_t m, float rho, float epsilon, float alpha,
         return n;
     }
 
-    n = (size_t)(rest * rho) + 1;
+    n = (size_t)(rest * params->rho) + 1;
     t = (float*)realloc(t, n * sizeof(float));
     while (rest > 0) {
         if (i >= n) {
-            n += (size_t)(rest * rho) + 1;
+            n += (size_t)(rest * params->rho) + 1;
             t = (float*)realloc(t, n * sizeof(float));
         }
-        t[i] = random_exponential(rho);
+        t[i] = random_exponential(params->rho);
         rest -= t[i];
         i++;
     }
@@ -64,7 +64,7 @@ size_t estimate_n(size_t m, float rho, float epsilon, float alpha,
         t = (float*)realloc(t, n * sizeof(float));
     }
     *pa = a = (float*)realloc(a, n * sizeof(float));
-    i = m;
+    i = params->m;
     do {
         a[i] = 1.0;
     } while (++i < n);

@@ -12,19 +12,19 @@ int main (int argc, char** argv) {
 
     size_t iterations;
 
-    float rho = 100.0;
-    float epsilon = 1E-4;
-
     // float exp_quantiles[] = {1.96, 2.575, 3};
-
-    size_t r = argc > 1 ? (size_t)atoi(argv[1]) : 180;
 
     float* alphas;
     float** ms;
     float** relative_deviations;
     size_t deepness = 4;
     iterations = 2000;
-    estimate_alpha(&iterations, rho, epsilon, r, deepness,
+    struct EstimateParameters params = {
+        .rho = 100.0,
+        .epsilon = 1E-4,
+        .r = argc > 1 ? (size_t)atoi(argv[1]) : 180
+    };
+    estimate_alpha(&iterations, &params, deepness,
                    &alphas, &ms, &relative_deviations);
     /*
     while (--alphas_count > 0) {
