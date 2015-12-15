@@ -6,9 +6,8 @@
 #include "alpha.h"
 
 float estimate_alpha_step (size_t* iterations,
-                          struct EstimateParameters* params, size_t deepness,
-                          float* alphas, float** ms, float** relative_deviations,
-                          size_t alphas_count) {
+        struct EstimateParameters* params, size_t deepness, float* alphas,
+        float** ms, float** relative_deviations, size_t alphas_count) {
     float sample_sum, best_deviation = 999;
     float* values;
     float step = 20;
@@ -57,8 +56,8 @@ float estimate_alpha_step (size_t* iterations,
 }
 
 size_t estimate_alpha(size_t* iterations, struct EstimateParameters* params,
-                      size_t deepness, float** p_alphas, float*** p_ms,
-                      float*** p_relative_deviations) {
+        size_t deepness, float** p_alphas, float*** p_ms,
+        float*** p_relative_deviations) {
     size_t max_alphas = 5 + 3 * deepness;
     size_t steps_count = 5;
     float step = 0.2;
@@ -91,12 +90,6 @@ size_t estimate_alpha(size_t* iterations, struct EstimateParameters* params,
         } while (++current_step < steps_count);
         step /= 2;
     } while (deepness-- > 0);
-    /*
-    *p_alphas = alphas =
-        (float*)realloc(alphas, alphas_count * sizeof(float));
-    *p_relative_deviations = relative_deviations =
-        (float*)realloc(relative_deviations, alphas_count * sizeof(float));
-        */
-    return 1;//alphas_count;
+    return 1;
 }
 
