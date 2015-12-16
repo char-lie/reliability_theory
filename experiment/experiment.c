@@ -4,11 +4,22 @@
 #include "../core/parameters.h"
 #include "../core/estimates.h"
 
-// float gammas[] = {1.96, 2.575, 3};
-#define GAMMA_SQUARED (2.575*2.575)
-#define EPSILON (1E-4)
-#define ESTIMATE_ITERATIONS(V,avg) ((size_t)((GAMMA_SQUARED * V) /\
-                                            (EPSILON * avg * avg))+1)
+float get_gamma(float epsilon) {
+    float gammas[]   = {3.715, 3.090, 1.6449, 2.326, 1.282};
+    float epsilons[] = { 1E-8,  1E-6, 2.5E-5,  1E-4,  1E-2};
+    size_t amount    = 4;
+    size_t i = amount;
+    while (--i) {
+        if (epsilon >= epsilons[i]) {
+            return gammas[i] * gammas[i];
+        }
+    }
+    return gammas[amount-1] * gammas[amount-1];
+}
+
+size_t estimate_iterations(float V, float avg, float gamma, float epsilon) {
+    return (size_t)((gamma * V) / (epsilon * avg * avg)) + 1;
+}
 
 float get_estimate(struct EstimateParameters* params) {
     float* a;
@@ -33,6 +44,7 @@ float* get_estimates(size_t* iterations, struct EstimateParameters* params) {
     size_t N = 0;
     float* sample;
     size_t min_iter, max_iter;
+    float gamma = get_gamma(params->epsilon);
     if (*iterations == 0) {
         sample = (float*)malloc(40000 * sizeof(float));
         min_iter = 1000;
@@ -49,7 +61,7 @@ float* get_estimates(size_t* iterations, struct EstimateParameters* params) {
         N ++;
         if (*iterations == 0 && N >= min_iter) {
             V = (M - (s * s) / N) / (N-1);
-            max_iter = ESTIMATE_ITERATIONS(V, s/N);
+            max_iter = estimate_iterations(V, s/N, gamma, params->epsilon);
         }
         if (*iterations == 0 && N % 1000 == 0) {
             printf("N=%zu: V=%E, avg=%E -> %zu\n", N, V, s/N, max_iter);
