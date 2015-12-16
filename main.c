@@ -47,8 +47,10 @@ int print_usage (char* executable) {
         "Get a* and m for r=140:\n"
         "%s -p 140\n"
         "Estimate Q for r=140, m=170, a*=0.75\n"
-        "%s --estimate 140 270 0.75\n\n",
-    executable, executable);
+        "%s --estimate 140 270 0.75\n"
+        "Get real Q for r=140, r=160 and r=180\n"
+        "%s -P 140 160 180\n\n",
+    executable, executable, executable);
     return 0;
 }
 
@@ -75,6 +77,9 @@ int main (int argc, char** argv) {
 
     srand(time(NULL));
 
+    struct Statistics statistics = {
+        .N = 0
+    };
     struct EstimateParameters params = {
         .rho = 100.0,
         .r = (size_t)atoi(argv[2]),
@@ -83,24 +88,36 @@ int main (int argc, char** argv) {
         .epsilon = argc > 5 ? (float)atof(argv[5]) : 1E-4,
     };
 
-    size_t iterations;
     float* alphas;
     float** ms;
     float** relative_deviations;
     size_t deepness;
-    size_t i;
+    size_t i, j;
+    float best_deviation, best_alpha;
+    size_t best_m;
 
-    float* values;
     float realQ;
 
     switch (action) {
         case ESTIMATE_PARAMETERS:
             deepness = 4;
-            iterations = argc > 3 ? (size_t)atoi(argv[3]) : 2000;
-            estimate_alpha(&iterations, &params, deepness,
+            statistics.N = argc > 3 ? (size_t)atoi(argv[3]) : 2000;
+            estimate_alpha(&statistics, &params, deepness,
                            &alphas, &ms, &relative_deviations);
             i = 0;
+            best_deviation = 999.0;
+            best_alpha = -1.0;
+            best_m = 0;
             while (relative_deviations[i] && ms[i]) {
+                j = 0;
+                while (relative_deviations[i][j] > 0.0) {
+                    if (relative_deviations[i][j] < best_deviation) {
+                        best_deviation = relative_deviations[i][j];
+                        best_alpha = alphas[i];
+                        best_m = (size_t)ms[i][j];
+                    }
+                    j++;
+                }
                 free(relative_deviations[i]);
                 free(ms[i]);
                 i++;
@@ -108,16 +125,17 @@ int main (int argc, char** argv) {
             free(relative_deviations);
             free(ms);
             free(alphas);
+            printf("Best:\nalpha, m, var = %E, %zu, %E\n",
+                    best_alpha, best_m, best_deviation);
             break;
         case ESTIMATE_PROBABILITY:
-            iterations = 0;
+            statistics.N = 0;
             printf("Get estimates\n");
-            values = get_estimates(&iterations, &params);
+            get_estimates(&statistics, &params);
             realQ = get_Q(params.r, params.rho);
-            printf("%zu: Difference is %E: %E - %E\n", iterations,
-                    fabs((sum(values, iterations)/iterations-realQ)/realQ),
-                    sum(values, iterations)/iterations, realQ);
-            free(values);
+            printf("%zu: Difference is %E: %E - %E\n", statistics.N,
+                    fabs((statistics.avg - realQ)/realQ),
+                    statistics.avg, realQ);
             break;
         case CALCULATE_PROBABILITY:
             i = 1;

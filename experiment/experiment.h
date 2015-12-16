@@ -3,12 +3,19 @@
 
 struct EstimateParameters;
 
-float* get_estimate(struct EstimateParameters* params);
-float* get_estimates(size_t* iterations, struct EstimateParameters* params);
-float sum(float* values, size_t length);
-float deviation(float avg, float* sample, size_t length);
+struct Statistics {
+    float M;
+    float m;
+    float avg;
+    float V;
+    size_t N;
+};
 
-size_t in_array(float value, float* array, size_t length, float EPSILON);
+float get_estimate(struct EstimateParameters* params);
+int get_estimates(struct Statistics* statistics,
+                  struct EstimateParameters* params);
+
+int in_array(float value, float* array, size_t length, float EPSILON);
 
 #endif
 

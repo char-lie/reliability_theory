@@ -3,6 +3,7 @@
 #include <math.h>
 #include "../core/parameters.h"
 #include "../core/estimates.h"
+#include "experiment.h"
 
 float get_gamma(float epsilon) {
     float gammas[]   = {3.715, 3.090, 1.6449, 2.326, 1.282};
@@ -36,55 +37,43 @@ float get_estimate(struct EstimateParameters* params) {
     return Q_estimate;
 }
 
-float* get_estimates(size_t* iterations, struct EstimateParameters* params) {
-    float M = 0.0;
-    float s = 0.0;
+int get_estimates(struct Statistics* statistics,
+                  struct EstimateParameters* params) {
     float currentQ;
-    float V = 0.0;
-    size_t N = 0;
-    float* sample;
     size_t min_iter, max_iter;
     float gamma = get_gamma(params->epsilon);
-    if (*iterations == 0) {
-        sample = (float*)malloc(40000 * sizeof(float));
+    if (statistics->N == 0) {
         min_iter = 1000;
         max_iter = min_iter;
     } else {
-        sample = (float*)malloc(*iterations * sizeof(float));
-        min_iter = *iterations;
-        max_iter = *iterations;
+        min_iter = statistics->N;
+        max_iter = statistics->N;
     }
+    statistics->M = 0.0;
+    statistics->m = 0.0;
+    size_t i = 0;
     do {
-        currentQ = sample[N] = get_estimate(params);
-        s += currentQ;
-        M += currentQ * currentQ;
-        N ++;
-        if (*iterations == 0 && N >= min_iter) {
-            V = (M - (s * s) / N) / (N-1);
-            max_iter = estimate_iterations(V, s/N, gamma, params->epsilon);
+        currentQ = get_estimate(params);
+        statistics->m += currentQ;
+        statistics->M += currentQ * currentQ;
+        i++;
+        if (statistics->N == 0 && i >= min_iter) {
+            statistics->avg = statistics->m / i;
+            statistics->V = (statistics->M - (statistics->m * statistics->m)
+                            / i) / (i - 1);
+            max_iter = estimate_iterations(statistics->V, statistics->avg,
+                                           gamma, params->epsilon);
         }
-        if (*iterations == 0 && N % 1000 == 0) {
-            printf("N=%zu: V=%E, avg=%E -> %zu\n", N, V, s/N, max_iter);
+        if (statistics->N == 0 && i % 1000 == 0) {
+            printf("N=%zu: V=%E, avg=%E -> %zu\n", i,
+                    statistics->V, statistics->avg, max_iter);
         }
-    } while (N < max_iter);
-    *iterations = N;
-    return sample;
-}
-
-float sum(float* values, size_t length) {
-    float result = 0.0;
-    while (length-- > 0) {
-        result += (float)values[length];
-    }
-    return result;
-}
-
-float deviation(float avg, float* sample, size_t length) {
-    float dev = 0.0;
-    while (length-- > 0) {
-        dev += (avg - sample[length]) * (avg - sample[length]);
-    }
-    return dev;
+    } while (i < max_iter);
+    statistics->N = i;
+    statistics->avg = statistics->m / statistics->N;
+    statistics->V = (statistics->M - (statistics->m * statistics->m)
+                    / statistics->N) / (statistics->N - 1);
+    return 1;
 }
 
 int in_array(float value, float* array, size_t length, float epsilon) {
