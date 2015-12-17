@@ -7,6 +7,7 @@ struct EstimateParameters {
     size_t r;
     size_t m;
     float alpha;
+    float cl;
 };
 
 size_t estimate_n(struct EstimateParameters* params,
