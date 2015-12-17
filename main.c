@@ -27,7 +27,13 @@ int print_usage (char* executable) {
         "options: (m, a*) parameters estimate\n"
         "  r     [unsigned]  Parameter for Q probability: Q(r) = P{nu >= r},\n"
         "                    where nu is an amount of entities being observed\n"
-        "  N     [unsigned]  Estimates amount for each (m,a*) tuple\n\n"
+        "  N     [unsigned]  Estimates amount for each (m,a*) tuple\n"
+        "  deep  [unsigned]  Occuracy of estimate.\n"
+        "                    When deepness is equal to 0, a* will be one of\n"
+        "                    0.0, 0.2, 0.4, 0.6, 0.8, 1.0: step 0.2.\n"
+        "                    With deepness=0 estimate for m will have\n"
+        "                    step=20 and mode is 2r.\n"
+        "                    Each deepness level divides step by two.\n\n"
     );
     printf(
         "options: Q probability estimate\n"
@@ -107,7 +113,7 @@ int main (int argc, char** argv) {
 
     switch (action) {
         case ESTIMATE_PARAMETERS:
-            deepness = 4;
+            deepness = argc > 4 ? (size_t)atoi(argv[4]) : 4;
             statistics.N = argc > 3 ? (size_t)atoi(argv[3]) : 2000;
             estimate_alpha(&statistics, &params, deepness,
                            &alphas, &ms, &relative_deviations);
