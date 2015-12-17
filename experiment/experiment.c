@@ -6,9 +6,17 @@
 #include "experiment.h"
 
 float get_gamma(float epsilon) {
-    float gammas[]   = {3.715, 3.090, 1.6449, 2.326, 1.282};
-    float epsilons[] = { 1E-8,  1E-6, 2.5E-5,  1E-4,  1E-2};
-    size_t amount    = 4;
+    float epsilons[] = {
+        0.8           , 0.9           , 0.95          , 0.98          ,
+        0.99          , 0.995         , 0.998         , 0.999         ,
+        0.9999        , 0.99999       , 0.999999      ,
+        0.9999999     , 0.99999999    , 0.999999999   };
+    float gammas[] = {
+        1.281551565545, 1.644853626951, 1.959963984540, 2.326347874041,
+        2.575829303549, 2.807033768344, 3.090232306168, 3.290526731492,
+        3.890591886413, 4.417173413469, 4.891638475699,
+        5.326723886384, 5.730728868236, 6.109410204869};
+    size_t amount = sizeof(gammas)/sizeof(float);
     size_t i = amount;
     while (--i) {
         if (epsilon >= epsilons[i]) {
@@ -41,7 +49,9 @@ int get_estimates(struct Statistics* statistics,
                   struct EstimateParameters* params) {
     float currentQ;
     size_t min_iter, max_iter;
-    float gamma = get_gamma(params->epsilon);
+    float gamma = get_gamma(params->cl);
+    float epsilon = 1 - params->cl;
+    epsilon *= epsilon;
     if (statistics->N == 0) {
         min_iter = 1000;
         max_iter = min_iter;
@@ -62,7 +72,7 @@ int get_estimates(struct Statistics* statistics,
             statistics->V = (statistics->M - (statistics->m * statistics->m)
                             / i) / (i - 1);
             max_iter = estimate_iterations(statistics->V, statistics->avg,
-                                           gamma, params->epsilon);
+                                           gamma, epsilon);
         }
         if (statistics->N == 0 && i % 1000 == 0) {
             printf("N=%zu: V=%E, avg=%E -> %zu\n", i,
