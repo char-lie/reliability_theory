@@ -25,17 +25,18 @@ int print_usage (char* executable) {
     );
     printf(
         "options: (m, a*) parameters estimate\n"
-        "  r     [unsigned] Parameter for Q probability: Q(r) = P{nu >= r},\n"
-        "                   where nu is an amount of entities being observed\n"
-        "  N     [unsigned] Estimates amount for each (m,a*) tuple\n\n"
+        "  r     [unsigned]  Parameter for Q probability: Q(r) = P{nu >= r},\n"
+        "                    where nu is an amount of entities being observed\n"
+        "  N     [unsigned]  Estimates amount for each (m,a*) tuple\n\n"
     );
     printf(
         "options: Q probability estimate\n"
-        "  r     [unsigned] Parameter for Q probability: Q(r) = P{nu >= r},\n"
-        "                   where nu is an amount of entities being observed\n"
-        "  m     [unsigned] Vector `alpha` scale\n"
-        "  a*    [float]    Vector `alpha` minimal value\n\n"
-        "  E     [float]    Epsilon, occuracy\n\n"
+        "  r     [unsigned]  Parameter for Q probability: Q(r) = P{nu >= r},\n"
+        "                    where nu is an amount of entities being observed\n"
+        "  m     [unsigned]  Vector `alpha` scale\n"
+        "  a*    [float]     Vector `alpha` minimal value\n\n"
+        "  E     [float]     Epsilon, occuracy (for n)\n\n"
+        "  cl    [float]     Confidence level (for N)\n\n"
     );
     printf(
         "options: real Q values\n"
@@ -75,6 +76,8 @@ int main (int argc, char** argv) {
         return 1;
     }
 
+    printf("IMPORTANCE SAMPLING\n\n");
+
     srand(time(NULL));
 
     struct Statistics statistics = {
@@ -86,6 +89,7 @@ int main (int argc, char** argv) {
         .m = argc > 3 ? (size_t)atoi(argv[3]) : 0,
         .alpha = argc > 4 ? (float)atof(argv[4]) : 0.0,
         .epsilon = argc > 5 ? (float)atof(argv[5]) : 1E-4,
+        .cl = argc > 6 ? (float)atof(argv[6]) : 0.99
     };
 
     float* alphas;
@@ -130,7 +134,11 @@ int main (int argc, char** argv) {
             break;
         case ESTIMATE_PROBABILITY:
             statistics.N = 0;
-            printf("Get estimates\n");
+            printf("Estimating probability for rho=%e, r=%zu"
+                   "with parameters a*=%f, m=%zu.\n"
+                   "epsilon=%E, confidence level is %E\n\n",
+                   params.rho, params.r, params.alpha, params.m,
+                   params.epsilon, params.cl);
             get_estimates(&statistics, &params);
             realQ = get_Q(params.r, params.rho);
             printf("%zu: Difference is %E: %E - %E\n", statistics.N,
