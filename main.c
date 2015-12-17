@@ -46,12 +46,15 @@ int print_usage (char* executable) {
     printf(
         "examples\n"
         "Get a* and m for r=140:\n"
-        "%s -p 140\n"
+        "  %s -p 140\n"
         "Estimate Q for r=140, m=170, a*=0.75\n"
-        "%s --estimate 140 270 0.75\n"
+        "  %s --estimate 140 270 0.75\n"
+        "Estimate Q for r=140, m=170, a*=0.75, epsilon=0.0001,\n"
+        "confidence level 0.99\n"
+        "  %s --estimate 140 270 0.75 1E-4 0.99\n"
         "Get real Q for r=140, r=160 and r=180\n"
-        "%s -P 140 160 180\n\n",
-    executable, executable, executable);
+        "  %s -P 140 160 180\n\n",
+    executable, executable, executable, executable);
     return 0;
 }
 
