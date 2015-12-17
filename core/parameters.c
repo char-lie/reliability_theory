@@ -84,20 +84,20 @@ float* get_p(size_t n, float* a, float* t) {
 }
 
 float get_Q(size_t r, float rho) {
-    long double result = 0.0;
-    long double accumulator = 1.0;
+    float accumulator = exp(-1);
+    float result = 0.0;
     size_t i = 1;
     do {
-        accumulator *= ((long double)rho)/i;
-        result += accumulator;
-    } while (++i < r);
-    return (float)(1 - exp((long double)(-rho)) * (1 + result));
-    /*
-    size_t k = r;
+        accumulator *= exp(-1) * rho/i;
+    } while (++i < rho);
     do {
-        result = exp(-rho * (r - k) / (r-1)) + result * exp(- rho / (r-1)) * rho / k;
-    } while (--k);
-    return 1 - result;
-    */
+        accumulator *= rho/i;
+    } while (++i < r);
+    do {
+        accumulator *= rho/i;
+        result += accumulator;
+        ++i;
+    } while (result + accumulator > result);
+    return result;
 }
 
