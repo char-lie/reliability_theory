@@ -36,7 +36,7 @@ float estimate_alpha_step (struct Statistics* statistics,
             get_estimates(statistics, params);
             ms[alphas_count][ms_count] = (float)params->m;
             relative_deviations[alphas_count][ms_count]
-                = statistics->V / statistics->avg;
+                = sqrt(statistics->V) / statistics->avg;
             if (isnan(relative_deviations[alphas_count][ms_count])
              || isinf(relative_deviations[alphas_count][ms_count])) {
                 return best_deviation;
